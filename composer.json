@@ -1,0 +1,21 @@
+{
+    "name": "nkostadinov/yii2-taxonomy",
+    "description": "Yii2 Taxonomy",
+    "type": "yii2-extension",
+    "keywords": ["yii2","extension","taxonomy"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nikola Kostadinov",
+            "email": "nikolakk@gmail.com"
+        }
+    ],
+    "require": {
+        "yiisoft/yii2": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "nkostadinov\\": ""
+        }
+    }
+}
