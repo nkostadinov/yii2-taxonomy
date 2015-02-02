@@ -9,7 +9,7 @@
 namespace nkostadinov\taxonomy\terms;
 
 
-use nkostadinov\taxonomy\interfaces\ITaxonomyTermInterface;
+use nkostadinov\taxonomy\components\interfaces\ITaxonomyTermInterface;
 use yii\db\Migration;
 
 abstract class BaseTerm implements ITaxonomyTermInterface

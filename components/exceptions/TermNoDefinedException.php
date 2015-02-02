@@ -6,7 +6,7 @@
  * Time: 11:25 ч.
  */
 
-namespace nkostadinov\taxonomy\exceptions;
+namespace nkostadinov\taxonomy\components\exceptions;
 
 
 class TermNoDefinedException extends \Exception {

@@ -6,7 +6,7 @@
  * Time: 11:41 ч.
  */
 
-namespace nkostadinov\taxonomy\terms;
+namespace nkostadinov\taxonomy\components\terms;
 
 
 class TagTerm extends BaseTerm {

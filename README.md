@@ -1,6 +1,6 @@
 Yii2 Taxonomy
 =============
-Yii2 Taxonomy
+Yii2 Taxonomy management.
 
 Installation
 ------------

@@ -6,10 +6,10 @@
  * Time: 10:46 ч.
  */
 
-namespace nkostadinov;
+namespace nkostadinov\taxonomy;
 
 
-use nkostadinov\taxonomy\exceptions\TermNoDefinedException;
+use nkostadinov\taxonomy\components\exceptions\TermNoDefinedException;
 use yii\base\Object;
 
 class Taxonomy extends Object {

@@ -6,7 +6,7 @@
  * Time: 11:31 ч.
  */
 
-namespace nkostadinov\taxonomy\interfaces;
+namespace nkostadinov\taxonomy\components\interfaces;
 
 
 interface ITaxonomyTermInterface {
