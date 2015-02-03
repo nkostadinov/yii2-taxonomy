@@ -6,30 +6,35 @@
  * Time: 11:35 ч.
  */
 
-namespace nkostadinov\taxonomy\terms;
+namespace nkostadinov\taxonomy\components\terms;
 
 
 use nkostadinov\taxonomy\components\interfaces\ITaxonomyTermInterface;
+use nkostadinov\taxonomy\models\Taxonomy;
+use yii\base\InvalidConfigException;
 use yii\db\Migration;
 
 abstract class BaseTerm implements ITaxonomyTermInterface
 {
-    protected  $table;
-    protected  $is_multi = false;
+    public $name; //the name of the term
+    public $table;
+    public $is_multi = false;
     public $db = 'db';
 
-    public abstract function addTerm($object_id, $value);
+    private $_taxonomy;
+
+    public abstract function isInstalled();
+
+    public abstract function addTerm($object_id, $params);
+    public abstract function removeTerm($object_id, $params);
 
     public function install()
     {
-        //apply migration
-        if ($this->getDb()->schema->getTableSchema($this->table, true) === null) {
-            $migration = new Migration();
-            $migration->db = $this->db;
-
-            $migration->createTable('', [
-                'term_id' => 'int(11) NOT NULL',
-            ]);
+        if($this->canInstall()) {
+            $taxonomy = new Taxonomy();
+            $taxonomy->name = $this->name;
+            $taxonomy->class = get_class($this);
+            $taxonomy->save();
         }
     }
 
@@ -40,6 +45,19 @@ abstract class BaseTerm implements ITaxonomyTermInterface
      */
     public function getDb()
     {
-        return \Yii::$this->db;
+        return \Yii::$app->{$this->db};
+    }
+
+    public function canInstall() {
+        if(!$this->table)
+            return 'Missing "table" property';
+        return true;
+    }
+
+    public function getTaxonomy()
+    {
+        if(!isset($this->_taxonomy))
+            $this->_taxonomy = Taxonomy::findOne(['name' => $this->name]);
+        return $this->_taxonomy;
     }
 }

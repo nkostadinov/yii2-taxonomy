@@ -13,6 +13,7 @@ interface ITaxonomyTermInterface {
 
     public function install();
 
-    public function addTerm($object_id, $value);
+    public function addTerm($object_id, $params);
+    public function removeTerm($object_id, $params);
 
 } 

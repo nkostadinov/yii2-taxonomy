@@ -11,4 +11,9 @@ namespace nkostadinov\taxonomy\components\terms;
 
 class TagTerm extends BaseTerm {
     public $is_multi = false;
+
+    public function addTerm($object_id, $value)
+    {
+        //
+    }
 } 

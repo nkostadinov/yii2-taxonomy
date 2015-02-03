@@ -10,24 +10,52 @@ namespace nkostadinov\taxonomy;
 
 
 use nkostadinov\taxonomy\components\exceptions\TermNoDefinedException;
-use yii\base\Object;
+use nkostadinov\taxonomy\components\terms\BaseTerm;
+use yii\base\Component;
+use yii\base\InvalidConfigException;
+use yii\db\Connection;
+use yii\log\Logger;
 
-class Taxonomy extends Object {
+class Taxonomy extends Component {
 
     public $config = [];
-    /* The db connection component */
+    /* @var Connection The db connection component */
     public $db = 'db';
 
-    public function addTerm($term, $value)
+    public $table = 'taxonomy';
+
+    public function isTermInstalled($termName)
     {
-        $term = $this->loadTerm($term);
+        $term = $this->getTerm($termName);
+        return $term->isInstalled();
     }
 
-    public function loadTerm($term)
+    public function addTerm($term, $object_id, $params)
     {
-        if(!isset($this->config[$term]))
-            throw new TermNoDefinedException("The term \"$term\" is not defined in config.");
+        $term = $this->getTerm($term);
+        $term->addTerm($object_id, $params);
+    }
 
-        return \Yii::createObject($this->config[$term]);
+    public function removeTerm($term, $object_id, $params)
+    {
+        $term = $this->getTerm($term);
+        $term->removeTerm($object_id, $params);
+    }
+
+    /**
+     * @param $termName
+     * @return BaseTerm
+     * @throws InvalidConfigException
+     */
+    public function getTerm($termName)
+    {
+        if(!isset($this->config[$termName]))
+            throw new TermNoDefinedException("The term \"$termName\" is not defined in config.");
+        if(!isset($this->config[$termName]['_instance'])) {
+            \Yii::getLogger()->log("Initialising term $termName => " .  $this->config[$termName]['class'], Logger::LEVEL_INFO, 'nkostadinov.taxonomy.terms');
+            $this->config[$termName]['_instance'] = \Yii::createObject(array_merge($this->config[$termName], ['name'=>$termName]));
+            $this->config[$termName]['_instance']->name = $termName;
+        }
+        return $this->config[$termName]['_instance'];
     }
 } 
