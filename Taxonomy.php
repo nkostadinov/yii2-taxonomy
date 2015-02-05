@@ -36,16 +36,30 @@ class Taxonomy extends Component {
         $term->addTerm($object_id, $params);
     }
 
+    public function addTermArray($term, $object_id, $array)
+    {
+        $term = $this->getTerm($term);
+        foreach($array as $k => $v)
+            $term->addTerm($object_id, [ 'name' => $k, 'value' => $v ]);
+    }
+
     public function removeTerm($term, $object_id, $params)
     {
         $term = $this->getTerm($term);
-        $term->removeTerm($object_id, $params);
+        return $term->removeTerm($object_id, $params);
+    }
+
+    public function getTerms($term, $object_id, $name = null)
+    {
+        $term = $this->getTerm($term);
+        return $term->getTerms($object_id, $name);
     }
 
     /**
      * @param $termName
      * @return BaseTerm
      * @throws InvalidConfigException
+     * @throws TermNoDefinedException
      */
     public function getTerm($termName)
     {
@@ -54,7 +68,6 @@ class Taxonomy extends Component {
         if(!isset($this->config[$termName]['_instance'])) {
             \Yii::getLogger()->log("Initialising term $termName => " .  $this->config[$termName]['class'], Logger::LEVEL_INFO, 'nkostadinov.taxonomy.terms');
             $this->config[$termName]['_instance'] = \Yii::createObject(array_merge($this->config[$termName], ['name'=>$termName]));
-            $this->config[$termName]['_instance']->name = $termName;
         }
         return $this->config[$termName]['_instance'];
     }

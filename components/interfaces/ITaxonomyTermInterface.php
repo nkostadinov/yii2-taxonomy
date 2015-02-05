@@ -15,5 +15,6 @@ interface ITaxonomyTermInterface {
 
     public function addTerm($object_id, $params);
     public function removeTerm($object_id, $params);
+    public function getTerms($object_id, $name = []);
 
 } 

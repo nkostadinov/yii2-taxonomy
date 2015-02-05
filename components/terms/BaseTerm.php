@@ -8,11 +8,9 @@
 
 namespace nkostadinov\taxonomy\components\terms;
 
-
 use nkostadinov\taxonomy\components\interfaces\ITaxonomyTermInterface;
 use nkostadinov\taxonomy\models\Taxonomy;
-use yii\base\InvalidConfigException;
-use yii\db\Migration;
+use nkostadinov\taxonomy\models\TaxonomyTerms;
 
 abstract class BaseTerm implements ITaxonomyTermInterface
 {
@@ -23,10 +21,14 @@ abstract class BaseTerm implements ITaxonomyTermInterface
 
     private $_taxonomy;
 
-    public abstract function isInstalled();
-
     public abstract function addTerm($object_id, $params);
     public abstract function removeTerm($object_id, $params);
+    public abstract function getTerms($object_id, $name = []);
+
+    public function isInstalled()
+    {
+        return Taxonomy::find()->andFilterWhere(['name' => $this->name])->exists();
+    }
 
     public function install()
     {
@@ -59,5 +61,24 @@ abstract class BaseTerm implements ITaxonomyTermInterface
         if(!isset($this->_taxonomy))
             $this->_taxonomy = Taxonomy::findOne(['name' => $this->name]);
         return $this->_taxonomy;
+    }
+
+    public function getTaxonomyTerm($name, $create = true)
+    {
+        $term = TaxonomyTerms::findOne(['term'=>$name, 'taxonomy_id' => $this->getTaxonomy()->id]);
+        if($create and !isset($term))
+        {
+            $term = new TaxonomyTerms();
+            $term->taxonomy_id = $tax->id;
+            $term->term = $name;
+            $term->total_count = 0;
+            $term->save();
+        }
+        return $term;
+    }
+
+    public function getRefTableName()
+    {
+        return call_user_func([$this->refTable, 'tableName']);
     }
 }

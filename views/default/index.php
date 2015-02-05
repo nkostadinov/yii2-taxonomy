@@ -12,7 +12,12 @@
             'class',
             'table',
             'refTable',
-            'total_count',
+            [
+                'label' => 'total_count',
+                'value' => function($model, $key, $index, $column) {
+                    return $model['term']->total_count;
+                }
+            ],
             [
                 'label' => 'Installed ?',
                 'format' => 'raw',

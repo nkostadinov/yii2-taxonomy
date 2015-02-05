@@ -63,6 +63,7 @@ class DefaultController extends Controller
                     'taxonomy_id' => Schema::TYPE_INTEGER,
                     'term' => Schema::TYPE_STRING,
                     'total_count' => Schema::TYPE_BIGINT . ' DEFAULT 0',
+                    'parent_id' => Schema::TYPE_BIGINT,
                 ]);
 
                 $migration->addForeignKey('fk_TaxonomyTerm_Taxonomy', TaxonomyTerms::tableName(), 'taxonomy_id',
