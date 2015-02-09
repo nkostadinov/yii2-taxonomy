@@ -1,6 +1,7 @@
 Yii2 Taxonomy
 =============
 Yii2 Taxonomy management.
+* THIS COMPONENT IS NOT READY FOR PRODUCTION YET
 
 Installation
 ------------
