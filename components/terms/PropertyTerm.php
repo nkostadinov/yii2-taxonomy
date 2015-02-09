@@ -92,6 +92,6 @@ class PropertyTerm extends BaseTerm {
             ->andFilterWhere(['taxonomy_terms.term' => $name]);
         foreach($query->all() as $v)
             $result[$v['term']] = $v['value'];
-        return $result;
+        return isset($result) ? $result : [];
     }
 }
