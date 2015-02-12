@@ -19,6 +19,8 @@ use yii\db\Schema;
 
 class PropertyTerm extends BaseTerm {
 
+    public $updateOnExist = true;
+
     public function install()
     {
         parent::install();
@@ -64,6 +66,8 @@ class PropertyTerm extends BaseTerm {
                 } catch (Exception $e) {
                     $transaction->rollBack();
                 }
+            } elseif($this->updateOnExist) {
+                $this->getDb()->createCommand()->update($this->getTable(), [ 'value' => $value ], $data)->execute();
             }
         }
     }

@@ -105,5 +105,10 @@ class TaxonomyTest extends TestCase
         $term->refresh();
         //check count on term
         $this->tester->assertEquals(2, $term->total_count, 'Tag term count not correct!');
+
+        //check update of field
+        $this->getTaxnonomy()->addTerm($term->name, $object_id, ['prop1' => 'value1_update']);
+        $data = $this->getTaxnonomy()->getTerms($term->name, $object_id);
+        $this->tester->assertEquals('value1_update', $data['prop1'], 'Property value not updated');
     }
 }
