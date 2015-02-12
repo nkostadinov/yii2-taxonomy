@@ -1,0 +1,14 @@
+# Codeception Test Suite Configuration
+
+# suite for unit (internal) tests.
+class_name: UnitTester
+modules:
+    enabled: [Db, Asserts, UnitHelper]
+    config:
+        Db:
+            dsn: 'sqlite:taxonomy.sqlite'
+            user:
+            password:
+            dump: tests/_data/dump.sql
+            populate: true
+            cleanup: false
