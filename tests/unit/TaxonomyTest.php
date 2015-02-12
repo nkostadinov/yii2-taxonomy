@@ -47,42 +47,63 @@ class TaxonomyTest extends TestCase
      */
     public function testTags()
     {
-        //perform test
+        $object_id = 2;
         //1. Add TAG taxonomy
         $term = new nkostadinov\taxonomy\models\TaxonomyDef();
         $term->name = 'test-tag';
         $term->class = nkostadinov\taxonomy\components\terms\TagTerm::className();
         $term->data_table = 'sample_tags';
         $term->ref_table = nkostadinov\taxonomy\models\SampleTable::className();
-        $this->assertTrue($term->save());
+        $this->tester->assertTrue($term->save());
+
         //2. Create data table
-        $tax = $this->getTaxnonomy();
-        $tax->getTerm($term->name)->install();
-        $this->assertTrue($tax->isInstalled());
+        $this->tester->assertFalse($this->getTaxnonomy()->getTerm($term->name)->isInstalled(), 'The term should NOT be installed.');
+        $this->getTaxnonomy()->getTerm($term->name)->install();
+        $this->tester->assertTrue($this->getTaxnonomy()->getTerm($term->name)->isInstalled(), 'The term should be installed.');
+
         //3. Add some data
-        $tax->addTerm($term->name, 2, ['tag1', 'tag2']);
+        $this->getTaxnonomy()->addTerm($term->name, $object_id, ['tag1', 'tag2']);
         $term->refresh();
         //check count on term
         $this->tester->assertEquals(2, $term->total_count, 'Tag term count not correct!');
 
-        $data = $tax->getTerms($term->name, 1);//empty
-        $this->tester->assertEmpty($data);
-
-        $data = $tax->getTerms($term->name, 2); // tag1 + tag2
+        $data = $this->getTaxnonomy()->getTerms($term->name, $object_id); // tag1 + tag2
         $this->tester->assertEquals(2, count($data), 'Tag term count not correct!');
         $this->tester->assertContains('tag1', $data, 'Tag1 missing in data');
         $this->tester->assertContains('tag2', $data, 'Tag1 missing in data');
 
-        $tax->removeTerm($term->name, 2, ['name' => 'tag1']);
-        $data = $tax->getTerms($term->name, 2); // tag1 + tag2
+        $this->getTaxnonomy()->removeTerm($term->name, $object_id, ['name' => 'tag1']);
+        $data = $this->getTaxnonomy()->getTerms($term->name, $object_id); // tag1 + tag2
         $this->tester->assertEquals(1, count($data), 'Tag term count not correct!');
         $this->tester->assertNotContains('tag1', $data, 'Tag1 present in data');
         $this->tester->assertContains('tag2', $data, 'Tag1 missing in data');
 
-        $tax->removeTerm($term->name, 2);
-        $data = $tax->getTerms($term->name, 2); // tag1 + tag2
+        $this->getTaxnonomy()->removeTerm($term->name, $object_id);
+        $data = $this->getTaxnonomy()->getTerms($term->name, $object_id); // tag1 + tag2
         $this->tester->assertEmpty($data, 'Tag term data not correct!');
         $this->tester->assertNotContains('tag1', $data, 'Tag1 present in data');
+    }
 
+    public function testProperties()
+    {
+        $object_id = 3;
+        //1. Add TAG taxonomy
+        $term = new nkostadinov\taxonomy\models\TaxonomyDef();
+        $term->name = 'test-property';
+        $term->class = nkostadinov\taxonomy\components\terms\PropertyTerm::className();
+        $term->data_table = 'sample_property';
+        $term->ref_table = nkostadinov\taxonomy\models\SampleTable::className();
+        $this->tester->assertTrue($term->save());
+
+        //2. Create data table
+        $this->tester->assertFalse($this->getTaxnonomy()->getTerm($term->name)->isInstalled(), 'The term should NOT be installed.');
+        $this->getTaxnonomy()->getTerm($term->name)->install();
+        $this->tester->assertTrue($this->getTaxnonomy()->getTerm($term->name)->isInstalled(), 'The term should be installed.');
+
+        //3. Add some data
+        $this->getTaxnonomy()->addTerm($term->name, $object_id, ['prop1' => 'value1', 'prop2' => 'value2']);
+        $term->refresh();
+        //check count on term
+        $this->tester->assertEquals(2, $term->total_count, 'Tag term count not correct!');
     }
 }

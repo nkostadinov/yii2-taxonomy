@@ -30,7 +30,7 @@ abstract class BaseTerm extends Object implements ITaxonomyTermInterface
 
     public function isInstalled()
     {
-        return TaxonomyDef::find()->andFilterWhere(['name' => $this->name])->exists();
+        return \Yii::$app->db->getTableSchema($this->getTable(), true) !== null;
     }
 
     public function install()

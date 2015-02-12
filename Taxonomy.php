@@ -75,8 +75,7 @@ class Taxonomy extends Component {
 
     public function isInstalled()
     {
-        $res = \Yii::$app->db->getTableSchema(TaxonomyDef::tableName(), true) !== null;
-        return $res;
+        return \Yii::$app->db->getTableSchema(TaxonomyDef::tableName(), true) !== null;
     }
 
     public function install()
