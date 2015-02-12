@@ -54,6 +54,6 @@ class TaxonomyTerms extends \yii\db\ActiveRecord
      */
     public function getTaxonomy()
     {
-        return $this->hasOne(Taxonomy::className(), ['id' => 'taxonomy_id']);
+        return $this->hasOne(TaxonomyDef::className(), ['id' => 'taxonomy_id']);
     }
 }

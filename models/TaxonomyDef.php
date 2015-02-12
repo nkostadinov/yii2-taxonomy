@@ -15,14 +15,14 @@ use Yii;
  *
  * @property TaxonomyTerms[] $taxonomyTerms
  */
-class Taxonomy extends \yii\db\ActiveRecord
+class TaxonomyDef extends \yii\db\ActiveRecord
 {
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
-        return 'taxonomy';
+        return 'taxonomy_def';
     }
 
     /**

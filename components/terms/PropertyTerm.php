@@ -25,20 +25,19 @@ class PropertyTerm extends BaseTerm {
         parent::install();
 
         $migration = new Migration();
-        $migration->createTable($this->table, [
+        $migration->createTable($this->getTable(), [
             'id' => Schema::TYPE_PK,
             'object_id' => Schema::TYPE_INTEGER,
             'term_id' => Schema::TYPE_BIGINT,
             'value' => Schema::TYPE_STRING,
         ]);
-        $migration->addForeignKey('fk_' . $this->table . '_' . $this->getRefTableName(), $this->table, 'object_id', $this->getRefTableName(), 'id', 'CASCADE');
-        $migration->addForeignKey('fk_' . $this->table . '_' . TaxonomyTerms::tableName(), $this->table, 'term_id', TaxonomyTerms::tableName(), 'id', 'CASCADE');
+        $migration->addForeignKey('fk_' . $this->getTable() . '_' . $this->getRefTableName(), $this->getTable(), 'object_id', $this->getRefTableName(), 'id', 'CASCADE');
+        $migration->addForeignKey('fk_' . $this->getTable() . '_' . TaxonomyTerms::tableName(), $this->getTable(), 'term_id', TaxonomyTerms::tableName(), 'id', 'CASCADE');
     }
 
     public function addTerm($object_id, $params)
     {
-        $tax = $this->getTaxonomy();
-        $term = TaxonomyTerms::findOne(['term'=>$params['name'], 'taxonomy_id' => $tax->id]);
+        $term = TaxonomyTerms::findOne(['term'=>$params['name'], 'taxonomy_id' => $this->id]);
         if(!isset($term))
         {
             $term = new TaxonomyTerms();
@@ -51,14 +50,14 @@ class PropertyTerm extends BaseTerm {
         $data['object_id'] = $object_id;
 
         $query = new Query();
-        if(!$query->select(1)->from($this->table)->where($data)->exists($this->getDb())) {
+        if(!$query->select(1)->from($this->getTable())->where($data)->exists($this->getDb())) {
             $transaction = $this->getDb()->beginTransaction();
             try {
                 $data['value'] = $params['value'];
-                $this->getDb()->createCommand()->insert($this->table, $data)->execute();
+                $this->getDb()->createCommand()->insert($this->getTable(), $data)->execute();
 
                 $term->updateCounters(['total_count' => 1]);
-                $tax->updateCounters(['total_count' => 1]);
+                TaxonomyTerms::updateAllCounters(['total_count' => 1], [ 'id' => $this->id ]);
 
                 $transaction->commit();
             } catch (Exception $e) {
@@ -67,29 +66,32 @@ class PropertyTerm extends BaseTerm {
         }
     }
 
-    public function removeTerm($object_id, $params)
+    public function removeTerm($object_id, $params = [])
     {
-        $term = $this->getTaxonomyTerm($params['name']);
-        $data['term_id'] = $term->id;
-        $data['object_id'] = $object_id;
+        $terms = $this->getTerms($object_id, isset($params['name']) ? $params['name'] : []);
+        foreach($terms as $term=>$value) {
+            $term = $this->getTaxonomyTerm($term);
+            $data['term_id'] = $term->id;
+            $data['object_id'] = $object_id;
 
-        $query = new Query();
-        if($query->select(1)->from($this->table)->where($data)->exists($this->getDb())) {
-            $this->getDb()->createCommand()->delete($this->table, $data)->execute();
+            $query = new Query();
+            if ($query->select(1)->from($this->getTable())->where($data)->exists($this->getDb())) {
+                $this->getDb()->createCommand()->delete($this->getTable(), $data)->execute();
 
-            $term->updateCounters([ 'total_count' => -1]);
-            $this->getTaxonomy()->updateCounters([ 'total_count' => -1]);
+                $term->updateCounters(['total_count' => -1]);
+                TaxonomyTerms::updateAllCounters(['total_count' => -1], [ 'id' => $this->id ]);
+            }
         }
     }
 
     public function getTerms($object_id, $name = [])
     {
         $query = (new Query())
-            ->select(TaxonomyTerms::tableName() . '.term, ' . $this->table . '.value')
+            ->select(TaxonomyTerms::tableName() . '.term, ' . $this->getTable() . '.value')
             ->from(TaxonomyTerms::tableName())
-            ->innerJoin($this->table, $this->table . '.term_id = taxonomy_terms.id and ' . $this->table . '.object_id=:object_id',
+            ->innerJoin($this->getTable(), $this->getTable() . '.term_id = taxonomy_terms.id and ' . $this->getTable() . '.object_id=:object_id',
                 [':object_id' => $object_id])
-            ->andFilterWhere(['taxonomy_terms.term' => $name]);
+            ->andFilterWhere([TaxonomyTerms::tableName() . '.term' => $name]);
         foreach($query->all() as $v)
             $result[$v['term']] = $v['value'];
         return isset($result) ? $result : [];

@@ -9,6 +9,6 @@
 namespace nkostadinov\taxonomy\components\exceptions;
 
 
-class TermNoDefinedException extends \Exception {
+class TermNotDefinedException extends \Exception {
 
 } 

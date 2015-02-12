@@ -5,27 +5,22 @@
     <h1>Yii2 Taxonomy module</h1>
     <?=
     \yii\grid\GridView::widget([
-        'dataProvider' => $terms,
+        'dataProvider' => $taxonomy,
         'emptyText' => 'No terms defined. Please add terms in config.',
         'columns' => [
             'name',
             'class',
-            'table',
-            'refTable',
-            [
-                'label' => 'total_count',
-                'value' => function($model, $key, $index, $column) {
-                    return $model['term']->total_count;
-                }
-            ],
+            'data_table',
+            'ref_table',
+            'total_count',
             [
                 'label' => 'Installed ?',
                 'format' => 'raw',
                 'value' => function($model, $key, $index, $column) {
-                    if(!isset($model['term']) or !$model['term']->created_at)
-                        return \yii\helpers\Html::a('install', \yii\helpers\Url::to(['default/installterm', 'term' => $model['name']]));
+                    if(!$model->created_at)
+                        return \yii\helpers\Html::a('install', \yii\helpers\Url::to(['default/installterm', 'term' => $model->name]));
                     else
-                        return $model['term']->created_at;
+                        return $model->created_at;
                 },
             ]
         ],

@@ -1,6 +1,5 @@
 <?php
 /**
- * Created by PhpStorm.
  * User: Nikola nb
  * Date: 19.10.2014
  * Time: 11:41 ч.
@@ -9,6 +8,8 @@
 namespace nkostadinov\taxonomy\components\terms;
 
 
+use Exception;
+use nkostadinov\taxonomy\models\TaxonomyDef;
 use nkostadinov\taxonomy\models\TaxonomyTerms;
 use yii\db\Migration;
 use yii\db\Query;
@@ -26,14 +27,14 @@ class TagTerm extends BaseTerm {
             'object_id' => Schema::TYPE_INTEGER,
             'term_id' => Schema::TYPE_BIGINT,
         ]);
-        $migration->addForeignKey('fk_' . $this->table . '_' . $this->getRefTableName(), $this->table, 'object_id', $this->getRefTableName(), 'id', 'CASCADE');
-        $migration->addForeignKey('fk_' . $this->table . '_' . TaxonomyTerms::tableName(), $this->table, 'term_id', TaxonomyTerms::tableName(), 'id', 'CASCADE');
+        if ($migration->db->driverName === 'mysql') {
+            $migration->addForeignKey('fk_' . $this->table . '_' . $this->getRefTableName(), $this->table, 'object_id', $this->getRefTableName(), 'id', 'CASCADE');
+            $migration->addForeignKey('fk_' . $this->table . '_' . TaxonomyTerms::tableName(), $this->table, 'term_id', TaxonomyTerms::tableName(), 'id', 'CASCADE');
+        }
     }
-
 
     public function addTerm($object_id, $params)
     {
-        $tax = $this->getTaxonomy();
         foreach($params as $item) {
             $term = $this->getTaxonomyTerm($item);
             $data['term_id'] = $term->id;
@@ -46,7 +47,7 @@ class TagTerm extends BaseTerm {
                     $this->getDb()->createCommand()->insert($this->table, $data)->execute();
 
                     $term->updateCounters(['total_count' => 1]);
-                    $this->getTaxonomy()->updateCounters(['total_count' => 1]);
+                    TaxonomyDef::updateAllCounters(['total_count' => 1], [ 'id' => $this->id ]);
 
                     $transaction->commit();
                 } catch (Exception $e) {
@@ -56,9 +57,10 @@ class TagTerm extends BaseTerm {
         }
     }
 
-    public function removeTerm($object_id, $params)
+    public function removeTerm($object_id, $params = [])
     {
-        $tax = $this->getTaxonomy();
+        if(empty($params))
+            $params = $this->getTerms($object_id);
         foreach($params as $item) {
             $term = $this->getTaxonomyTerm($item);
             $data['term_id'] = $term->id;
@@ -69,7 +71,7 @@ class TagTerm extends BaseTerm {
                 $this->getDb()->createCommand()->delete($this->table, $data)->execute();
 
                 $term->updateCounters(['total_count' => -1]);
-                $this->getTaxonomy()->updateCounters(['total_count' => -1]);
+                Taxonomydef::updateAllCounters(['total_count' => -1], [ 'id' => $this->id ]);
             }
         }
     }
