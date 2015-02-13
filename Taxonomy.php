@@ -1,7 +1,6 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: Nikola nb
+ * @author Nikola Kostadinov<nikolakk@gmail.com>
  * Date: 19.10.2014
  * Time: 10:46 ч.
  */
@@ -19,11 +18,12 @@ use yii\db\Migration;
 use yii\db\Schema;
 use yii\log\Logger;
 
-class Taxonomy extends Component {
-
+class Taxonomy extends Component
+{
     /* @var Connection The db connection component */
     public $db = 'db';
     public $table = 'taxonomy';
+    //cache array of initialized terms
     private $_taxonomy = [];
 
     public function isTermInstalled($termName)
@@ -36,13 +36,6 @@ class Taxonomy extends Component {
     {
         $term = $this->getTerm($term);
         $term->addTerm($object_id, $params);
-    }
-
-    public function addTermArray($term, $object_id, $array)
-    {
-        $term = $this->getTerm($term);
-        foreach($array as $k => $v)
-            $term->addTerm($object_id, [ 'name' => $k, 'value' => $v ]);
     }
 
     public function removeTerm($term, $object_id, $params = [])

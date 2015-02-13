@@ -2,6 +2,7 @@
 
 use nkostadinov\taxonomy\models\TaxonomyDef;
 use nkostadinov\taxonomy\models\TaxonomyTerms;
+use nkostadinov\taxonomy\tests\models\SampleTable;
 use yii\codeception\TestCase;
 
 class TaxonomyTest extends TestCase
@@ -53,7 +54,7 @@ class TaxonomyTest extends TestCase
         $term->name = 'test-tag';
         $term->class = nkostadinov\taxonomy\components\terms\TagTerm::className();
         $term->data_table = 'sample_tags';
-        $term->ref_table = nkostadinov\taxonomy\models\SampleTable::className();
+        $term->ref_table = SampleTable::className();
         $this->tester->assertTrue($term->save());
 
         //2. Create data table
@@ -92,7 +93,7 @@ class TaxonomyTest extends TestCase
         $term->name = 'test-property';
         $term->class = nkostadinov\taxonomy\components\terms\PropertyTerm::className();
         $term->data_table = 'sample_property';
-        $term->ref_table = nkostadinov\taxonomy\models\SampleTable::className();
+        $term->ref_table = SampleTable::className();
         $this->tester->assertTrue($term->save());
 
         //2. Create data table
@@ -110,5 +111,7 @@ class TaxonomyTest extends TestCase
         $this->getTaxnonomy()->addTerm($term->name, $object_id, ['prop1' => 'value1_update']);
         $data = $this->getTaxnonomy()->getTerms($term->name, $object_id);
         $this->tester->assertEquals('value1_update', $data['prop1'], 'Property value not updated');
+
+        $data = SampleTable::find()->hasTags()->all();
     }
 }

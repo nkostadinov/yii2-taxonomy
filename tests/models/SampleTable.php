@@ -1,7 +1,8 @@
 <?php
 
-namespace nkostadinov\taxonomy\models;
+namespace nkostadinov\taxonomy\tests\models;
 
+use nkostadinov\taxonomy\behaviors\TagQuery;
 use Yii;
 
 /**
@@ -40,5 +41,18 @@ class SampleTable extends \yii\db\ActiveRecord
             'id' => 'ID',
             'name' => 'Name',
         ];
+    }
+
+    /**
+     * @return TagQuery
+     */
+    public static function find()
+    {
+        $query = parent::find();
+        $query->attachBehavior('taxonomy-tag', [
+            'class' => \nkostadinov\taxonomy\behaviors\TagQuery::className(),
+            'taxonomy' => \Yii::$app->taxonomy->getTerm('test-tag'),
+        ]);
+        return $query;
     }
 }
