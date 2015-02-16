@@ -9,6 +9,8 @@ namespace nkostadinov\taxonomy;
 
 use nkostadinov\taxonomy\components\exceptions\TermNotDefinedException;
 use nkostadinov\taxonomy\components\terms\BaseTerm;
+use nkostadinov\taxonomy\components\terms\PropertyTerm;
+use nkostadinov\taxonomy\components\terms\TagTerm;
 use nkostadinov\taxonomy\models\TaxonomyDef;
 use nkostadinov\taxonomy\models\TaxonomyTerms;
 use yii\base\Component;
@@ -25,6 +27,8 @@ class Taxonomy extends Component
     public $table = 'taxonomy';
     //cache array of initialized terms
     private $_taxonomy = [];
+    //
+    public $definitions = [];
 
     public function isTermInstalled($termName)
     {
@@ -98,5 +102,16 @@ class Taxonomy extends Component
             $migration->addForeignKey('fk_TaxonomyTerm_Taxonomy', TaxonomyTerms::tableName(), 'taxonomy_id',
                 TaxonomyDef::tableName(), TaxonomyDef::primaryKey());
         }
+    }
+
+    /**
+     * @return array
+     */
+    public function getDefinitions()
+    {
+        return array_merge(
+            [TagTerm::className(), PropertyTerm::className()],
+            $this->definitions
+        );
     }
 } 

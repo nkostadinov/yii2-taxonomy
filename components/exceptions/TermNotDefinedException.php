@@ -8,7 +8,8 @@
 
 namespace nkostadinov\taxonomy\components\exceptions;
 
+use yii\base\InvalidConfigException;
 
-class TermNotDefinedException extends \Exception {
+class TermNotDefinedException extends InvalidConfigException {
 
 } 

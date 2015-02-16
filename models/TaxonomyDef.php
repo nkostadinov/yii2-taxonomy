@@ -31,7 +31,7 @@ class TaxonomyDef extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['name', 'class'], 'required'],
+            [['name', 'class', 'data_table', 'ref_table'], 'required'],
             [['created_at'], 'safe'],
             [['total_count'], 'integer'],
             [['name'], 'string', 'max' => 64],
