@@ -2,10 +2,13 @@
 
 namespace nkostadinov\taxonomy\controllers;
 
+use nkostadinov\taxonomy\models\TaxonomyTerms;
+use nkostadinov\taxonomy\Taxonomy;
 use Yii;
 use nkostadinov\taxonomy\models\TaxonomyDef;
 use nkostadinov\taxonomy\models\TaxonomyDefSearch;
 use yii\base\InvalidConfigException;
+use yii\data\ActiveDataProvider;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -52,8 +55,19 @@ class DefController extends Controller
      */
     public function actionView($id)
     {
+        $termProvider = new ActiveDataProvider([
+            'query' => TaxonomyTerms::find()->andFilterWhere(['taxonomy_id' => $id]),
+            'sort' => [
+                // Set the default sort by name ASC and created_at DESC.
+                'defaultOrder' => [
+                    'total_count' => SORT_DESC,
+                ]
+            ],
+        ]);
+
         return $this->render('view', [
             'model' => $this->findModel($id),
+            'termProvider' => $termProvider
         ]);
     }
 
