@@ -82,7 +82,7 @@ class Taxonomy extends Component
             'id' => Schema::TYPE_PK,
             'name' => Schema::TYPE_STRING,
             'class' => Schema::TYPE_STRING,
-            'created_at' => Schema::TYPE_TIMESTAMP . ' DEFAULT CURRENT_TIMESTAMP',
+            'created_at' => Schema::TYPE_TIMESTAMP,
             'total_count' => Schema::TYPE_BIGINT . ' DEFAULT 0',
             'data_table' => Schema::TYPE_STRING,
             'ref_table' => Schema::TYPE_STRING,
