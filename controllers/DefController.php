@@ -9,6 +9,7 @@ use nkostadinov\taxonomy\models\TaxonomyDef;
 use nkostadinov\taxonomy\models\TaxonomyDefSearch;
 use yii\base\InvalidConfigException;
 use yii\data\ActiveDataProvider;
+use yii\helpers\Url;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -37,7 +38,7 @@ class DefController extends Controller
     public function actionIndex()
     {
         if(!$this->getComponent()->isInstalled())
-            $this->redirect($this->module->id . '/' . $this->id . '/install');
+            $this->redirect(['install']);
 
         $searchModel = new TaxonomyDefSearch();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
