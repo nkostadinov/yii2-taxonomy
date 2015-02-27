@@ -75,6 +75,9 @@ class Taxonomy extends Component
         return \Yii::$app->db->getTableSchema(TaxonomyDef::tableName(), true) !== null;
     }
 
+    /**
+     * Creates tables in DB needed for extension to work.
+     */
     public function install()
     {
         $migration = new Migration();
@@ -100,7 +103,7 @@ class Taxonomy extends Component
 
         if ($migration->db->driverName === 'mysql') {
             $migration->addForeignKey('fk_TaxonomyTerm_Taxonomy', TaxonomyTerms::tableName(), 'taxonomy_id',
-                TaxonomyDef::tableName(), TaxonomyDef::primaryKey());
+                TaxonomyDef::tableName(), 'id');
         }
     }
 
