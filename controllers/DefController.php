@@ -8,6 +8,7 @@ use nkostadinov\taxonomy\models\TaxonomyDef;
 use nkostadinov\taxonomy\models\TaxonomyDefSearch;
 use yii\base\InvalidConfigException;
 use yii\data\ActiveDataProvider;
+use yii\helpers\Url;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
@@ -162,7 +163,7 @@ class DefController extends Controller
             if($this->getComponent()) {
                 $this->getComponent()->install();
 
-                $this->redirect([$this->module->id . '/' . $this->id . '/index']);
+                $this->redirect(['/'.$this->module->id . '/' . $this->id . '/index']);
             } else
                 throw new InvalidConfigException("Cannot find taxonomy component({$this->module->component})");
         }

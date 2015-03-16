@@ -80,6 +80,8 @@ class Taxonomy extends Component
      */
     public function install()
     {
+        if($this->isInstalled())
+            return;
         $migration = new Migration();
         $migration->createTable(TaxonomyDef::tableName(), [
             'id' => Schema::TYPE_PK,
