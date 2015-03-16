@@ -31,7 +31,7 @@ $this->registerJs('');
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => 255]) ?>
     <?= $form->field($model, 'class')->dropDownList(array_combine($definitions, $definitions)); ?>
-    <?= $form->field($model, 'data_table')->textInput(['maxlength' => 64])->hint('The name of the table holding the taxonomy data.') ?>
+    <?= $form->field($model, 'data_table')->textInput(['maxlength' => 64])->hint('The name of the table(AR class) holding the taxonomy data.') ?>
     <?= $form->field($model, 'ref_table')->textInput(['maxlength' => 255]) ?>
 
     <div class="form-group">

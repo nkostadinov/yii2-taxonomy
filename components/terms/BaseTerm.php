@@ -8,6 +8,7 @@
 
 namespace nkostadinov\taxonomy\components\terms;
 
+use Aws\S3\Exception\AccessDeniedException;
 use nkostadinov\taxonomy\components\interfaces\ITaxonomyTermInterface;
 use nkostadinov\taxonomy\models\Taxonomy;
 use nkostadinov\taxonomy\models\TaxonomyDef;
@@ -43,6 +44,15 @@ abstract class BaseTerm extends Object implements ITaxonomyTermInterface
         }
     }
 
+    public function uninstall()
+    {
+        //drop the data table
+        $this->getDb()->createCommand()->dropTable($this->getTable())->execute();
+        //delete the term itself
+        $model = TaxonomyDef::findOne($this->id);
+        $model->delete();
+    }
+
     /**
      * Return the db connection component.
      *
@@ -75,7 +85,10 @@ abstract class BaseTerm extends Object implements ITaxonomyTermInterface
 
     public function getRefTableName()
     {
-        return call_user_func([$this->refTable, 'tableName']);
+        if(strpos($this->refTable, '\\') === FALSE) //not an AR class but a table name
+            return $this->refTable;
+        else
+            return call_user_func([$this->refTable, 'tableName']);
     }
 
     public function getTable()

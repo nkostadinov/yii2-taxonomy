@@ -81,6 +81,10 @@ class DefController extends Controller
         $definitions = $this->getComponent()->getDefinitions();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
+            //install the term
+            $term = $this->getComponent()->getTerm($model->name);
+            $term->install();
+
             return $this->redirect(['view', 'id' => $model->id]);
         } else {
             return $this->render('create', [
@@ -119,7 +123,10 @@ class DefController extends Controller
      */
     public function actionDelete($id)
     {
-        $this->findModel($id)->delete();
+        $model = $this->findModel($id);
+        //UNinstall the term
+        $term = $this->getComponent()->getTerm($model->name);
+        $term->uninstall();
 
         return $this->redirect(['index']);
     }
@@ -155,7 +162,7 @@ class DefController extends Controller
             if($this->getComponent()) {
                 $this->getComponent()->install();
 
-                $this->redirect($this->module->id . '/' . $this->id . '/index');
+                $this->redirect([$this->module->id . '/' . $this->id . '/index']);
             } else
                 throw new InvalidConfigException("Cannot find taxonomy component({$this->module->component})");
         }
