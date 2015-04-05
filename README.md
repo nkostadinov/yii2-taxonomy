@@ -56,4 +56,4 @@ If you need to use the management interface for taxonomies you must add the Taxo
 The bundled taxonomies with these package are :
 
 ### TagTerm
-Basically tag
+Basically tag represent taxonomies which are added to an object. They do not have a value. You can add multiple tags to an item.
