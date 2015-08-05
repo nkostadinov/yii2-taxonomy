@@ -28,7 +28,6 @@ install:
 before_script:
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --prefer-source --dev
-#  - codecept build
 
 script:
   - ~/.composer/vendor/bin/codecept build
