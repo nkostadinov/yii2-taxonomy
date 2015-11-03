@@ -76,40 +76,6 @@ class Taxonomy extends Component
     }
 
     /**
-     * Creates tables in DB needed for extension to work.
-     */
-    public function install()
-    {
-        if($this->isInstalled())
-            return;
-        $migration = new Migration();
-        $migration->createTable(TaxonomyDef::tableName(), [
-            'id' => Schema::TYPE_PK,
-            'name' => Schema::TYPE_STRING,
-            'class' => Schema::TYPE_STRING,
-            'created_at' => Schema::TYPE_TIMESTAMP,
-            'total_count' => Schema::TYPE_BIGINT . ' DEFAULT 0',
-            'data_table' => Schema::TYPE_STRING,
-            'ref_table' => Schema::TYPE_STRING,
-        ]);
-
-        $migration->createIndex('unq_name', TaxonomyDef::tableName(), 'name', true);
-
-        $migration->createTable(TaxonomyTerms::tableName(), [
-            'id' => Schema::TYPE_BIGPK,
-            'taxonomy_id' => Schema::TYPE_INTEGER,
-            'term' => Schema::TYPE_STRING,
-            'total_count' => Schema::TYPE_BIGINT . ' DEFAULT 0',
-            'parent_id' => Schema::TYPE_BIGINT,
-        ]);
-
-        if ($migration->db->driverName === 'mysql') {
-            $migration->addForeignKey('fk_TaxonomyTerm_Taxonomy', TaxonomyTerms::tableName(), 'taxonomy_id',
-                TaxonomyDef::tableName(), 'id');
-        }
-    }
-
-    /**
      * @return array
      */
     public function getDefinitions()

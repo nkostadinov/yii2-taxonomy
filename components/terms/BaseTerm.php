@@ -13,10 +13,13 @@ use nkostadinov\taxonomy\components\interfaces\ITaxonomyTermInterface;
 use nkostadinov\taxonomy\models\Taxonomy;
 use nkostadinov\taxonomy\models\TaxonomyDef;
 use nkostadinov\taxonomy\models\TaxonomyTerms;
+use yii\base\Exception;
 use yii\base\Object;
 
 abstract class BaseTerm extends Object implements ITaxonomyTermInterface
 {
+    public $migrationPath = '@app/migrations';
+
     public $id;
     public $name; //the name of the term
     public $data_table;
@@ -24,6 +27,7 @@ abstract class BaseTerm extends Object implements ITaxonomyTermInterface
     public $is_multi = false;
     public $created_at;
     public $total_count;
+    public $migration;
 
     public abstract function addTerm($object_id, $params);
     public abstract function removeTerm($object_id, $params = []);
@@ -36,18 +40,13 @@ abstract class BaseTerm extends Object implements ITaxonomyTermInterface
 
     public function install()
     {
-        if($this->canInstall()) {
-            $taxonomy = new TaxonomyDef();
-            $taxonomy->name = $this->name;
-            $taxonomy->class = get_class($this);
-            $taxonomy->save();
-        }
+        $this->createMigration();
     }
 
     public function uninstall()
     {
         //drop the data table
-        $this->getDb()->createCommand()->dropTable($this->getTable())->execute();
+        //$this->getDb()->createCommand()->dropTable($this->getTable())->execute();
         //delete the term itself
         $model = TaxonomyDef::findOne($this->id);
         $model->delete();
@@ -99,5 +98,28 @@ abstract class BaseTerm extends Object implements ITaxonomyTermInterface
     public function getRefTable()
     {
         return $this->ref_table;
+    }
+
+    public function getMigrationFile()
+    {
+        if (!preg_match('/^\w+$/', $this->name)) {
+            throw new Exception('The migration name should contain letters, digits and/or underscore characters only.');
+        }
+        $name = 'm' . gmdate('ymd_His') . '_' . $this->name;
+        return $name;
+    }
+
+    public function createMigration()
+    {
+
+        $name = $this->getMigrationFile();
+        $file = \Yii::getAlias($this->migrationPath . DIRECTORY_SEPARATOR . $name . '.php');
+
+        $data = get_object_vars($this);
+        $data['migration'] = $name;
+        $this->migration = $name;
+        $data['class'] = get_class($this);
+        $content = \Yii::$app->getView()->renderFile(\Yii::getAlias($this->templateFile), [ 'data' => $data ]);
+        file_put_contents($file, $content);
     }
 }

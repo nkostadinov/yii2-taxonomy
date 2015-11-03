@@ -11,27 +11,11 @@ namespace nkostadinov\taxonomy\components\terms;
 use Exception;
 use nkostadinov\taxonomy\models\TaxonomyDef;
 use nkostadinov\taxonomy\models\TaxonomyTerms;
-use yii\db\Migration;
 use yii\db\Query;
-use yii\db\Schema;
 
 class TagTerm extends BaseTerm {
 
-    public function install()
-    {
-        parent::install();
-
-        $migration = new Migration();
-        $migration->createTable($this->table, [
-            'id' => Schema::TYPE_PK,
-            'object_id' => Schema::TYPE_INTEGER,
-            'term_id' => Schema::TYPE_BIGINT,
-        ]);
-        if ($migration->db->driverName === 'mysql') {
-            $migration->addForeignKey('fk_' . $this->table . '_' . $this->getRefTableName(), $this->table, 'object_id', $this->getRefTableName(), 'id', 'CASCADE');
-            $migration->addForeignKey('fk_' . $this->table . '_' . TaxonomyTerms::tableName(), $this->table, 'term_id', TaxonomyTerms::tableName(), 'id', 'CASCADE');
-        }
-    }
+    public $templateFile = '@nkostadinov/taxonomy/migrations/template/tag.php' ;
 
     public function addTerm($object_id, $params)
     {

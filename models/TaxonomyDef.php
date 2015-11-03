@@ -12,6 +12,7 @@ use Yii;
  * @property string $class
  * @property string $created_at
  * @property string $total_count
+ * @property string $migration
  *
  * @property TaxonomyTerms[] $taxonomyTerms
  */
@@ -32,7 +33,7 @@ class TaxonomyDef extends \yii\db\ActiveRecord
     {
         return [
             [['name', 'class', 'data_table', 'ref_table'], 'required'],
-            [['created_at'], 'safe'],
+            [['created_at', 'migration'], 'safe'],
             [['total_count'], 'integer'],
             [['name'], 'string', 'max' => 64],
             [['name'], 'unique']
