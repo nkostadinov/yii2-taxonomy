@@ -37,8 +37,6 @@ class TaxonomyTest extends TestCase
          $this->assertTrue(Yii::$app->id == 'Yii2 Taxonomy Test');
         //the table does not exists ... yet
         $this->tester->assertFalse($this->getTaxnonomy()->isInstalled(), 'Tables exist before install!');
-        //perform install
-        $this->getTaxnonomy()->install();
         //check installed ?
         $this->tester->assertTrue($this->getTaxnonomy()->isInstalled(), 'Missing tables! ');
     }
