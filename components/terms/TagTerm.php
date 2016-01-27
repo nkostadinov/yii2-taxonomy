@@ -7,7 +7,6 @@
 
 namespace nkostadinov\taxonomy\components\terms;
 
-
 use Exception;
 use nkostadinov\taxonomy\models\TaxonomyDef;
 use nkostadinov\taxonomy\models\TaxonomyTerms;

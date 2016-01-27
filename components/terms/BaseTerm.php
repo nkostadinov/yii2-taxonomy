@@ -33,6 +33,17 @@ abstract class BaseTerm extends Object implements ITaxonomyTermInterface
     public abstract function removeTerm($object_id, $params = []);
     public abstract function getTerms($object_id, $name = []);
 
+    public function listTerms()
+    {
+        $terms = TaxonomyTerms::find()
+            ->select('term')
+            ->where(['taxonomy_id' => $this->id])
+            ->asArray()
+            ->all();
+
+        return \yii\helpers\ArrayHelper::getColumn($terms, 'term');
+    }
+
     public function isInstalled()
     {
         return \Yii::$app->db->getTableSchema($this->getTable(), true) !== null;

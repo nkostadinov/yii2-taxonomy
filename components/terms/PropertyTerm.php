@@ -7,15 +7,13 @@
 
 namespace nkostadinov\taxonomy\components\terms;
 
-use nkostadinov\taxonomy\models\Taxonomy;
 use nkostadinov\taxonomy\models\TaxonomyDef;
 use nkostadinov\taxonomy\models\TaxonomyTerms;
-use yii\data\ActiveDataProvider;
-use yii\data\SqlDataProvider;
 use yii\db\Exception;
 use yii\db\Migration;
 use yii\db\Query;
 use yii\db\Schema;
+use yii\helpers\ArrayHelper;
 
 class PropertyTerm extends BaseTerm {
 
