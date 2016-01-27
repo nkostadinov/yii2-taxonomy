@@ -7,7 +7,6 @@
 
 namespace nkostadinov\taxonomy\components\terms;
 
-
 use Exception;
 use nkostadinov\taxonomy\models\TaxonomyDef;
 use nkostadinov\taxonomy\models\TaxonomyTerms;
@@ -72,5 +71,16 @@ class TagTerm extends BaseTerm {
         foreach($query->all() as $v)
             $result[] = $v['term'];
         return $result;
+    }
+
+    public function listTerms()
+    {
+        $terms = TaxonomyTerms::find()
+            ->select('term')
+            ->where(['taxonomy_id' => $this->id])
+            ->asArray()
+            ->all();
+
+        return array_column($terms, 'term');
     }
 }
