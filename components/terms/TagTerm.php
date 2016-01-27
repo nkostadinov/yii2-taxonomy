@@ -11,7 +11,6 @@ use Exception;
 use nkostadinov\taxonomy\models\TaxonomyDef;
 use nkostadinov\taxonomy\models\TaxonomyTerms;
 use yii\db\Query;
-use yii\helpers\ArrayHelper;
 
 class TagTerm extends BaseTerm {
 
@@ -74,15 +73,14 @@ class TagTerm extends BaseTerm {
         return $result;
     }
 
-    public function listTerms($names = [])
+    public function listTerms()
     {
-        $terms = (new \yii\db\Query)
-            ->select('terms.term')
-            ->from(['terms' => TaxonomyTerms::tableName()])
+        $terms = TaxonomyTerms::find()
+            ->select('term')
             ->where(['taxonomy_id' => $this->id])
-            ->andFilterWhere(['terms.term' => $names])
+            ->asArray()
             ->all();
 
-        return ArrayHelper::map($terms, 'term', 'term');
+        return array_column($terms, 'term');
     }
 }

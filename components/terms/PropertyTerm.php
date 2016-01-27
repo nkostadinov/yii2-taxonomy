@@ -101,14 +101,13 @@ class PropertyTerm extends BaseTerm {
         return isset($result) ? $result : [];
     }
 
-    public function listTerms($names = array())
+    public function listTerms()
     {
         $terms = (new Query())
             ->select("taxonomyTerms.term, $this->table.value")
             ->from(['taxonomyTerms' => TaxonomyTerms::tableName()])
             ->innerJoin($this->table, "$this->table.term_id = taxonomyTerms.id")
             ->where(['taxonomy_id' => $this->id])
-            ->andFilterWhere(['taxonomyTerms.term' => $names])
             ->all();
         
         return ArrayHelper::map($terms, 'term', 'value');

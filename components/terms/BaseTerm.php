@@ -32,7 +32,7 @@ abstract class BaseTerm extends Object implements ITaxonomyTermInterface
     public abstract function addTerm($object_id, $params);
     public abstract function removeTerm($object_id, $params = []);
     public abstract function getTerms($object_id, $name = []);
-    public abstract function listTerms($names = []);
+    public abstract function listTerms();
 
     public function isInstalled()
     {
