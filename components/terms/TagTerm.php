@@ -72,15 +72,4 @@ class TagTerm extends BaseTerm {
             $result[] = $v['term'];
         return $result;
     }
-
-    public function listTerms()
-    {
-        $terms = TaxonomyTerms::find()
-            ->select('term')
-            ->where(['taxonomy_id' => $this->id])
-            ->asArray()
-            ->all();
-
-        return array_column($terms, 'term');
-    }
 }

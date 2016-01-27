@@ -100,16 +100,4 @@ class PropertyTerm extends BaseTerm {
             $result[$v['term']] = $v['value'];
         return isset($result) ? $result : [];
     }
-
-    public function listTerms()
-    {
-        $terms = (new Query())
-            ->select("taxonomyTerms.term, $this->table.value")
-            ->from(['taxonomyTerms' => TaxonomyTerms::tableName()])
-            ->innerJoin($this->table, "$this->table.term_id = taxonomyTerms.id")
-            ->where(['taxonomy_id' => $this->id])
-            ->all();
-        
-        return ArrayHelper::map($terms, 'term', 'value');
-    }
 }
