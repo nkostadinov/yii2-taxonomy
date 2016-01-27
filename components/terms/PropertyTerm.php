@@ -7,15 +7,13 @@
 
 namespace nkostadinov\taxonomy\components\terms;
 
-use nkostadinov\taxonomy\models\Taxonomy;
 use nkostadinov\taxonomy\models\TaxonomyDef;
 use nkostadinov\taxonomy\models\TaxonomyTerms;
-use yii\data\ActiveDataProvider;
-use yii\data\SqlDataProvider;
 use yii\db\Exception;
 use yii\db\Migration;
 use yii\db\Query;
 use yii\db\Schema;
+use yii\helpers\ArrayHelper;
 
 class PropertyTerm extends BaseTerm {
 
@@ -101,5 +99,18 @@ class PropertyTerm extends BaseTerm {
         foreach($query->all() as $v)
             $result[$v['term']] = $v['value'];
         return isset($result) ? $result : [];
+    }
+
+    public function listTerms($names = array())
+    {
+        $terms = (new Query())
+            ->select("taxonomyTerms.term, $this->table.value")
+            ->from(['taxonomyTerms' => TaxonomyTerms::tableName()])
+            ->innerJoin($this->table, "$this->table.term_id = taxonomyTerms.id")
+            ->where(['taxonomy_id' => $this->id])
+            ->andFilterWhere(['taxonomyTerms.term' => $names])
+            ->all();
+        
+        return ArrayHelper::map($terms, 'term', 'value');
     }
 }

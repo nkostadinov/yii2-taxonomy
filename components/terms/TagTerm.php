@@ -7,11 +7,11 @@
 
 namespace nkostadinov\taxonomy\components\terms;
 
-
 use Exception;
 use nkostadinov\taxonomy\models\TaxonomyDef;
 use nkostadinov\taxonomy\models\TaxonomyTerms;
 use yii\db\Query;
+use yii\helpers\ArrayHelper;
 
 class TagTerm extends BaseTerm {
 
@@ -72,5 +72,17 @@ class TagTerm extends BaseTerm {
         foreach($query->all() as $v)
             $result[] = $v['term'];
         return $result;
+    }
+
+    public function listTerms($names = [])
+    {
+        $terms = (new \yii\db\Query)
+            ->select('terms.term')
+            ->from(['terms' => TaxonomyTerms::tableName()])
+            ->where(['taxonomy_id' => $this->id])
+            ->andFilterWhere(['terms.term' => $names])
+            ->all();
+
+        return ArrayHelper::map($terms, 'term', 'term');
     }
 }
