@@ -20,7 +20,7 @@ cache:
 
 install:
   - composer self-update
-  - composer global require "fxp/composer-asset-plugin:~1.0.3"
+  - travis_retry composer global require "fxp/composer-asset-plugin:~1.1.0"
   - composer install
   # codeception
   - travis_retry composer global require "codeception/codeception=2.0.*" "codeception/specify=*" "codeception/verify=*"
