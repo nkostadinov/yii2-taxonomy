@@ -28,7 +28,7 @@ install:
 before_script:
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --prefer-source --dev
-  - codeception/bin/yii migrate --mirationPath=@nkostadinov/user/migrations
+  - cd tests/codeception/bin && php yii migrate --mirationPath=@nkostadinov/user/migrations
 
 script:
   - ~/.composer/vendor/bin/codecept build
