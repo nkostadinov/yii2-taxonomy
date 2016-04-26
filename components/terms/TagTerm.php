@@ -24,7 +24,7 @@ class TagTerm extends BaseTerm {
             $data['object_id'] = $object_id;
 
             $query = new Query();
-            if (!$query->select(1)->from($this->table)->where($data)->exists($this->getDb())) {
+            if (!$query->from($this->table)->where($data)->exists($this->getDb())) {
                 $transaction = $this->getDb()->beginTransaction();
                 try {
                     $this->getDb()->createCommand()->insert($this->table, $data)->execute();
