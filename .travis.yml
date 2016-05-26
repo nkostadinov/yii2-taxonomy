@@ -29,7 +29,7 @@ install:
 before_script:
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --prefer-source --dev
-  - php ./tests/yii migrate --mirationPath=@nkostadinov/user/migrations
+  - php ./tests/yii migrate --migrationPath=@nkostadinov/migrations
 
 script:
   - ~/.composer/vendor/bin/codecept build
