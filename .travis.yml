@@ -19,16 +19,17 @@ cache:
     - $HOME/.composer/cache
 
 install:
-  - composer self-update
-  - travis_retry composer global require "fxp/composer-asset-plugin:~1.1.0"
-  - composer install
+  - travis_retry composer self-update
+  - travis_retry composer global require "fxp/composer-asset-plugin:^1.0"
+
+  - travis_retry composer install --dev --prefer-dist --no-interaction
   # codeception
   - travis_retry composer global require "codeception/codeception=2.0.*" "codeception/specify=*" "codeception/verify=*"
 
 before_script:
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --prefer-source --dev
-  - cd tests/codeception/bin && php yii migrate --mirationPath=@nkostadinov/user/migrations
+  - php yii migrate --mirationPath=@nkostadinov/user/migrations
 
 script:
   - ~/.composer/vendor/bin/codecept build
