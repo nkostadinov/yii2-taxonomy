@@ -16,9 +16,9 @@ class <?= $data['migration'] ?> extends Migration
 {
     public function up()
     {
-        $def = new TaxonomyDef();
-        $def->setAttributes(<?= var_export($data) ?>);
-        $def->save();
+        $this->insert(TaxonomyDef::tableName(), [
+            <?= var_export($data) ?>
+        ]);
 
         $this->createTable('{{%<?= $data['data_table'] ?>}}', [
             'id' => $this->primaryKey(),
