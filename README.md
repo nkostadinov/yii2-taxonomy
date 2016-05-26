@@ -57,3 +57,9 @@ The bundled taxonomies with these package are :
 
 ### TagTerm
 Basically tag represent taxonomies which are added to an object. They do not have a value. You can add multiple tags to an item.
+
+### PropertyTerm
+They are the same as tag terms but they DO have a value. You can add multiple properties to an item.
+
+//TODO
+* add hierarchical terms (categories)
