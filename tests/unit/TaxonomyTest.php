@@ -47,7 +47,7 @@ class TaxonomyTest extends TestCase
         $object_id = 2;
         //1. Add TAG taxonomy
         $term = new nkostadinov\taxonomy\models\TaxonomyDef();
-        $term->name = 'test-tag';
+        $term->name = 'test_tag';
         $term->class = nkostadinov\taxonomy\components\terms\TagTerm::className();
         $term->data_table = 'sample_tags';
         $term->ref_table = SampleTable::className();
@@ -89,7 +89,7 @@ class TaxonomyTest extends TestCase
         $object_id = 3;
         //1. Add TAG taxonomy
         $term = new nkostadinov\taxonomy\models\TaxonomyDef();
-        $term->name = 'test-property';
+        $term->name = 'test_property';
         $term->class = nkostadinov\taxonomy\components\terms\PropertyTerm::className();
         $term->data_table = 'sample_property';
         $term->ref_table = SampleTable::className();
