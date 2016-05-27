@@ -35,8 +35,6 @@ class TaxonomyTest extends TestCase
     {
         //just to check that the app instance is correct
          $this->assertTrue(Yii::$app->id == 'Yii2 Taxonomy Test');
-        //the table does not exists ... yet
-        $this->tester->assertFalse($this->getTaxnonomy()->isInstalled(), 'Tables exist before install!');
         //check installed ?
         $this->tester->assertTrue($this->getTaxnonomy()->isInstalled(), 'Missing tables! ');
     }
@@ -83,6 +81,9 @@ class TaxonomyTest extends TestCase
         $this->tester->assertNotContains('tag1', $data, 'Tag1 present in data');
     }
 
+    /**
+     * @depends testInstall
+     */
     public function testProperties()
     {
         $object_id = 3;
