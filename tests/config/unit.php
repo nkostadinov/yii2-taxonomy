@@ -1,5 +1,7 @@
 <?php
 
+Yii::setAlias('@nkostadinov/taxonomy', __DIR__ . '/../../');
+
 return [
     'id' => 'Yii2 Taxonomy Test',
     'basePath' => dirname(__DIR__),

@@ -60,9 +60,9 @@ class Taxonomy extends Component
      * @throws InvalidConfigException
      * @throws TermNotDefinedException
      */
-    public function getTerm($termName)
+    public function getTerm($termName, $reload = false)
     {
-        if(!isset($this->_taxonomy[$termName])) {
+        if(!isset($this->_taxonomy[$termName]) or $reload) {
             $tax = TaxonomyDef::findOne(['name' => $termName]);
             \Yii::getLogger()->log("Initialising term $termName", Logger::LEVEL_INFO, 'nkostadinov.taxonomy.terms');
             $this->_taxonomy[$termName] = \Yii::createObject($tax->attributes);

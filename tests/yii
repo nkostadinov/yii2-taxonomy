@@ -8,7 +8,5 @@ $config = require(__DIR__ . '/config/unit.php');
 
 $application = new yii\console\Application($config);
 
-Yii::setAlias('@nkostadinov', __DIR__ . '/../');
-
 $exitCode = $application->run();
 exit($exitCode);

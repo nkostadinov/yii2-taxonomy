@@ -50,7 +50,7 @@ class TagTerm extends BaseTerm {
             $data['object_id'] = $object_id;
 
             $query = new Query();
-            if ($query->select(1)->from($this->table)->where($data)->exists($this->getDb())) {
+            if ($query->from($this->table)->where($data)->exists($this->getDb())) {
                 $this->getDb()->createCommand()->delete($this->table, $data)->execute();
 
                 $term->updateCounters(['total_count' => -1]);

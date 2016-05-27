@@ -17,6 +17,8 @@ use yii\helpers\ArrayHelper;
 
 class PropertyTerm extends BaseTerm {
 
+    public $templateFile = '@nkostadinov/taxonomy/migrations/template/properties.php' ;
+
     public $updateOnExist = true;
 
     public function install()
@@ -51,7 +53,7 @@ class PropertyTerm extends BaseTerm {
             $data['object_id'] = $object_id;
 
             $query = new Query();
-            if (!$query->select(1)->from($this->getTable())->where($data)->exists($this->getDb())) {
+            if (!$query->from($this->getTable())->where($data)->exists($this->getDb())) {
                 $transaction = $this->getDb()->beginTransaction();
                 try {
                     $data['value'] = $value;
@@ -79,7 +81,7 @@ class PropertyTerm extends BaseTerm {
             $data['object_id'] = $object_id;
 
             $query = new Query();
-            if ($query->select(1)->from($this->getTable())->where($data)->exists($this->getDb())) {
+            if ($query->from($this->getTable())->where($data)->exists($this->getDb())) {
                 $this->getDb()->createCommand()->delete($this->getTable(), $data)->execute();
 
                 $term->updateCounters(['total_count' => -1]);

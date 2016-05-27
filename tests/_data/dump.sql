@@ -1,13 +1,16 @@
 DROP TABLE IF EXISTS sample_tags;
 DROP TABLE IF EXISTS sample_property;
 DROP TABLE IF EXISTS sample_table;
-DROP TABLE IF EXISTS taxonomy_def;
-DROP TABLE IF EXISTS taxonomy_terms;
+-- DROP TABLE IF EXISTS taxonomy_def;
+-- DROP TABLE IF EXISTS taxonomy_terms;
+
+DELETE FROM taxonomy_test.taxonomy_def;
 
 CREATE TABLE sample_table
 (
-  id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-  name TEXT NOT NULL
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  name TEXT NOT NULL,
+  PRIMARY KEY (`id`)
 );
 
 INSERT INTO sample_table (id, name) VALUES (1, 'record1');

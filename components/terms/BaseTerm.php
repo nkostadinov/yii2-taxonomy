@@ -51,7 +51,7 @@ abstract class BaseTerm extends Object implements ITaxonomyTermInterface
 
     public function install()
     {
-        $this->createMigration();
+        return $this->createMigration();
     }
 
     public function uninstall()
@@ -131,11 +131,12 @@ abstract class BaseTerm extends Object implements ITaxonomyTermInterface
         $data['name'] = $this->name;
         $data['class'] = get_class($this);
         $data['data_table'] = $this->data_table;
-        $data['ref_table'] = $this->ref_table;
+        $data['ref_table'] = $this->getRefTableName();
         $data['migration'] = $name;
 
         $this->migration = $name;
         $content = \Yii::$app->getView()->renderFile(\Yii::getAlias($this->templateFile), [ 'data' => $data ]);
         file_put_contents($file, $content);
+        return $name;
     }
 }

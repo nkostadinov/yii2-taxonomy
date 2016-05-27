@@ -6,9 +6,9 @@ modules:
     enabled: [Db, Asserts, UnitHelper]
     config:
         Db:
-            dsn: 'sqlite:taxonomy.sqlite'
-            user:
-            password:
+            dsn: 'mysql:host=localhost;dbname=taxonomy_test'
+            user: 'root'
+            password: ''
             dump: tests/_data/dump.sql
             populate: true
             cleanup: false
