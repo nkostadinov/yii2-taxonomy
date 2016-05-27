@@ -6,9 +6,9 @@ return [
     'components' => array(
         'db' => array(
             'class' => 'yii\db\Connection',
-            'dsn' => 'sqlite:taxonomy.sqlite',
-//            'username' => 'root',
-//            'password' => '',
+            'dsn' => 'mysql:host=localhost;dbname=taxonomy_test',
+            'username' => 'root',
+            'password' => '',
             'charset' => 'utf8',
         ),
         'taxonomy' => [

@@ -29,6 +29,7 @@ install:
 before_script:
   - travis_retry composer self-update
   - travis_retry composer install --no-interaction --prefer-source --dev
+  - mysql -e 'create database taxonomy_test;'
   - php ./tests/yii migrate --migrationPath=@nkostadinov/migrations --interactive=0
 
 script:
