@@ -62,7 +62,7 @@ class Taxonomy extends Component
      */
     public function getTerm($termName, $reload = false)
     {
-        if(!isset($this->_taxonomy[$termName]) or $reload) {
+        if(!isset($this->_taxonomy[$termName]) || $reload) {
             $tax = TaxonomyDef::findOne(['name' => $termName]);
             \Yii::getLogger()->log("Initialising term $termName", Logger::LEVEL_INFO, 'nkostadinov.taxonomy.terms');
             $this->_taxonomy[$termName] = \Yii::createObject($tax->attributes);

@@ -1,6 +1,7 @@
 Yii2 Taxonomy
 =============
 [![Build Status](https://travis-ci.org/nkostadinov/yii2-taxonomy.svg?branch=master)](https://travis-ci.org/nkostadinov/yii2-taxonomy)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/nkostadinov/yii2-taxonomy/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/nkostadinov/yii2-taxonomy/?branch=master)
 
 Yii2 Taxonomy management. A component which adds generic taxonomy functionalities to your application. The component
 comes with a couple of term definitions(tags, properties). These additional info is added via addition tables created
