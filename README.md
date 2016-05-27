@@ -53,6 +53,30 @@ If you need to use the management interface for taxonomies you must add the Taxo
         ],
 ```        
 
+It is recommended to use the taxonomy *MODULE* only on dev environment to create the taxonomies just like gii. When you add a taxonomy via the interface the component creates a migration so you can execute it on production later.
+ 
+Sample usage (tags):
+ //return a taxonomy object used to manipulate this taxonomy(taxonomy must be defined before that and the migrations executed)
+ ```
+ $taxonomy = Yii::$app->taxonomy->getTerm('post_tags');
+ ```
+ 
+ //Adding terms (e.g. tags) to an object with id $post_id
+ ```
+ $taxonomy->addTerm($post_id, ['read', 'important', 'new']);
+ ```
+ 
+ //Deleting tags
+ ```
+ $taxonomy->removeTerm($post_id, ['important', 'new']);
+ ```
+ 
+ //Retrieving tags
+ ```
+ $taxonomy->getTerms($this->id);
+ ```
+ // returns ['read']
+ 
 ## Taxonomies
 The bundled taxonomies with these package are :
 
