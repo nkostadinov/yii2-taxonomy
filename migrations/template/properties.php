@@ -24,6 +24,7 @@ class <?= $data['migration'] ?> extends Migration
             'id' => $this->primaryKey(),
             'object_id' => $this->integer()->notNull(),
             'term_id' => $this->bigInteger()->notNull(),
+            'value' => $this->string(),
         ]);
 
         $this->addForeignKey('fk_<?= $data['data_table'] ?>_<?= $data['ref_table'] ?>', '<?= $data['data_table'] ?>', 'object_id', '<?= $data['ref_table'] ?>', 'id', 'CASCADE');
