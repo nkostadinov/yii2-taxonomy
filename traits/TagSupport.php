@@ -1,6 +1,6 @@
 <?php
 
-namespace insight\core\traits;
+namespace nkostadinov\taxonomy\traits;
 
 use Yii;
 
@@ -10,7 +10,7 @@ use Yii;
  * Advantages:
  *     - Simplicity
  *     - Centralized place of the code
- * 
+ *
  * Usage:
  *     - Add it to your model:
  *         class Shift extends ActiveRecord
@@ -37,9 +37,9 @@ use Yii;
  */
 trait TagSupport
 {
-    private $_tags = [];
-
     protected $taxonomies = [];
+
+    private $_tags = [];
 
     public function __get($name)
     {
@@ -64,19 +64,20 @@ trait TagSupport
         }
     }
 
-    protected function saveTaxonomies()
-    {
-        foreach ($this->_tags as $name => $value) {
-            $this->taxonomies[$name]->removeTerm($this->id);
-            // The cast is there because if the tags input is empty, selectize will return an empty string
-            $this->taxonomies[$name]->addTerm($this->id, (array) $value);
-        }
-    }
-
     public function afterSave($insert, $changedAttributes)
     {
         $this->saveTaxonomies();
         parent::afterSave($insert, $changedAttributes);
+    }
+
+    protected function saveTaxonomies()
+    {
+        foreach ($this->_tags as $name => $value) {
+            $this->taxonomies[$name]->removeTerm($this->id);
+            // The cast is there because if using Selectize for example and
+            // the tags input is empty, Selectize will return an empty string
+            $this->taxonomies[$name]->addTerm($this->id, (array) $value);
+        }
     }
 
     private function loadTaxonomy($name)
