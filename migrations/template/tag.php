@@ -33,5 +33,6 @@ class <?= $data['migration'] ?> extends Migration
     public function down()
     {
         $this->dropTable('{{%<?= $data['data_table'] ?>}}');
+        $this->delete(TaxonomyDef::tableName(), "name=:name", [ ':name' => '<?= $data['name'] ?>' ]);
     }
 }

@@ -60,6 +60,7 @@ trait TagSupport
         if (!isset($this->taxonomies[$name])) {
             parent::__set($name, $value);
         } else {
+            $this->loadTaxonomy($name);
             $this->_tags[$name] = $value;
         }
     }
