@@ -9,6 +9,7 @@ namespace nkostadinov\taxonomy;
 
 use nkostadinov\taxonomy\components\exceptions\TermNotDefinedException;
 use nkostadinov\taxonomy\components\terms\BaseTerm;
+use nkostadinov\taxonomy\components\terms\CategoryTerm;
 use nkostadinov\taxonomy\components\terms\PropertyTerm;
 use nkostadinov\taxonomy\components\terms\TagTerm;
 use nkostadinov\taxonomy\models\TaxonomyDef;
@@ -81,7 +82,7 @@ class Taxonomy extends Component
     public function getDefinitions()
     {
         return array_merge(
-            [TagTerm::className(), PropertyTerm::className()],
+            [TagTerm::className(), PropertyTerm::className(), CategoryTerm::className()],
             $this->definitions
         );
     }
