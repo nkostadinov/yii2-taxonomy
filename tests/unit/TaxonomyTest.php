@@ -1,12 +1,16 @@
 <?php
 
+use nkostadinov\taxonomy\components\terms\CategoryTerm;
+use nkostadinov\taxonomy\components\terms\PropertyTerm;
+use nkostadinov\taxonomy\components\terms\TagTerm;
 use nkostadinov\taxonomy\models\TaxonomyDef;
-use nkostadinov\taxonomy\models\TaxonomyTerms;
+use nkostadinov\taxonomy\Taxonomy;
 use nkostadinov\taxonomy\tests\models\SampleTable;
 use yii\codeception\TestCase;
+use yii\console\controllers\MigrateController;
 
 
-class Migrator extends \yii\console\controllers\MigrateController
+class Migrator extends MigrateController
 {
     public function __construct($id, $module, $config = [])
     {
@@ -37,7 +41,7 @@ class Migrator extends \yii\console\controllers\MigrateController
 class TaxonomyTest extends TestCase
 {
     /**
-     * @var \UnitTester
+     * @var UnitTester
      */
     protected $tester;
 
@@ -50,9 +54,9 @@ class TaxonomyTest extends TestCase
     }
 
     /**
-     * @return nkostadinov\taxonomy\Taxonomy
+     * @return Taxonomy
      */
-    protected function getTaxnonomy()
+    protected function getTaxonomy()
     {
         return Yii::$app->taxonomy;
     }
@@ -63,7 +67,7 @@ class TaxonomyTest extends TestCase
         //just to check that the app instance is correct
          $this->assertTrue(Yii::$app->id == 'Yii2 Taxonomy Test');
         //check installed ?
-        $this->tester->assertTrue($this->getTaxnonomy()->isInstalled(), 'Missing tables! ');
+        $this->tester->assertTrue($this->getTaxonomy()->isInstalled(), 'Missing tables! ');
     }
 
     /**
@@ -73,9 +77,9 @@ class TaxonomyTest extends TestCase
     {
         $object_id = 2;
         //1. Add TAG taxonomy
-        $term = new nkostadinov\taxonomy\models\TaxonomyDef();
+        $term = new TaxonomyDef();
         $term->name = 'test_tag';
-        $term->class = nkostadinov\taxonomy\components\terms\TagTerm::className();
+        $term->class = TagTerm::className();
         $term->data_table = 'sample_tags';
         $term->ref_table = SampleTable::className();
 
@@ -83,27 +87,27 @@ class TaxonomyTest extends TestCase
         $tagTerm = Yii::createObject($term->attributes);
         $migration = $tagTerm->install();
         $this->runMigration($migration);
-        $this->tester->assertTrue($this->getTaxnonomy()->getTerm($term->name)->isInstalled(), 'The term should be installed.');
+        $this->tester->assertTrue($this->getTaxonomy()->getTerm($term->name)->isInstalled(), 'The term should be installed.');
 
         //3. Add some data
-        $this->getTaxnonomy()->addTerm($term->name, $object_id, ['tag1', 'tag2']);
-        $term = $this->getTaxnonomy()->getTerm($term->name, true);
+        $this->getTaxonomy()->addTerm($term->name, $object_id, ['tag1', 'tag2']);
+        $term = $this->getTaxonomy()->getTerm($term->name, true);
         //check count on term
         $this->tester->assertEquals(2, $term->total_count, "Tag term count not correct ({$term->total_count})!");
 
-        $data = $this->getTaxnonomy()->getTerms($term->name, $object_id); // tag1 + tag2
+        $data = $this->getTaxonomy()->getTerms($term->name, $object_id); // tag1 + tag2
         $this->tester->assertEquals(2, count($data), 'Tag term count not correct!');
         $this->tester->assertContains('tag1', $data, 'Tag1 missing in data');
         $this->tester->assertContains('tag2', $data, 'Tag1 missing in data');
 
-        $this->getTaxnonomy()->removeTerm($term->name, $object_id, ['name' => 'tag1']);
-        $data = $this->getTaxnonomy()->getTerms($term->name, $object_id); // tag1 + tag2
+        $this->getTaxonomy()->removeTerm($term->name, $object_id, ['name' => 'tag1']);
+        $data = $this->getTaxonomy()->getTerms($term->name, $object_id); // tag1 + tag2
         $this->tester->assertEquals(1, count($data), 'Tag term count not correct!');
         $this->tester->assertNotContains('tag1', $data, 'Tag1 present in data');
         $this->tester->assertContains('tag2', $data, 'Tag1 missing in data');
 
-        $this->getTaxnonomy()->removeTerm($term->name, $object_id);
-        $data = $this->getTaxnonomy()->getTerms($term->name, $object_id); // tag1 + tag2
+        $this->getTaxonomy()->removeTerm($term->name, $object_id);
+        $data = $this->getTaxonomy()->getTerms($term->name, $object_id); // tag1 + tag2
         $this->tester->assertEmpty($data, 'Tag term data not correct!');
         $this->tester->assertNotContains('tag1', $data, 'Tag1 present in data');
     }
@@ -119,29 +123,98 @@ class TaxonomyTest extends TestCase
 
         $object_id = 3;
         //1. Add TAG taxonomy
-        $term = new nkostadinov\taxonomy\models\TaxonomyDef();
+        $term = new TaxonomyDef();
         $term->name = 'test_property';
-        $term->class = nkostadinov\taxonomy\components\terms\PropertyTerm::className();
+        $term->class = PropertyTerm::className();
         $term->data_table = 'sample_property';
         $term->ref_table = SampleTable::className();
         $this->tester->assertTrue($term->save());
 
         //2. Create data table
-        $this->tester->assertFalse($this->getTaxnonomy()->getTerm($term->name)->isInstalled(), 'The term should NOT be installed.');
-        $this->getTaxnonomy()->getTerm($term->name)->install();
-        $this->tester->assertTrue($this->getTaxnonomy()->getTerm($term->name)->isInstalled(), 'The term should be installed.');
+        $this->tester->assertFalse($this->getTaxonomy()->getTerm($term->name)->isInstalled(), 'The term should NOT be installed.');
+        $this->getTaxonomy()->getTerm($term->name)->install();
+        $this->tester->assertTrue($this->getTaxonomy()->getTerm($term->name)->isInstalled(), 'The term should be installed.');
 
         //3. Add some data
-        $this->getTaxnonomy()->addTerm($term->name, $object_id, ['prop1' => 'value1', 'prop2' => 'value2']);
+        $this->getTaxonomy()->addTerm($term->name, $object_id, ['prop1' => 'value1', 'prop2' => 'value2']);
         $term->refresh();
         //check count on term
         $this->tester->assertEquals(2, $term->total_count, 'Tag term count not correct!');
 
         //check update of field
-        $this->getTaxnonomy()->addTerm($term->name, $object_id, ['prop1' => 'value1_update']);
-        $data = $this->getTaxnonomy()->getTerms($term->name, $object_id);
+        $this->getTaxonomy()->addTerm($term->name, $object_id, ['prop1' => 'value1_update']);
+        $data = $this->getTaxonomy()->getTerms($term->name, $object_id);
         $this->tester->assertEquals('value1_update', $data['prop1'], 'Property value not updated');
 
         $data = SampleTable::find()->hasTags()->all();
+    }
+
+    public function testCategories()
+    {
+        // 1. Add category taxonomy
+        $taxonomy = new TaxonomyDef();
+        $taxonomy->name = 'test_categories';
+        $taxonomy->class = CategoryTerm::className();
+        $taxonomy->data_table = 'sample_categories';
+        $taxonomy->ref_table = SampleTable::className();
+
+        // 2. Create data table
+        $categoryTerm = Yii::createObject($taxonomy->attributes);
+        $migration = $categoryTerm->install();
+        $this->runMigration($migration);
+        $categoryTerm = $this->getTaxonomy()->getTerm($taxonomy->name);
+        $this->tester->assertTrue($categoryTerm->isInstalled(), 'The taxonomy must be installed.');
+
+        // 3. Add a root category without an object id
+        $rootTermName = 'root';
+        $categoryTerm->addTerm(null, [$rootTermName]);
+        $categoryTerm = $this->getTaxonomy()->getTerm($taxonomy->name, true);
+        $rootTerm = $categoryTerm->getTaxonomyTerm($rootTermName);
+        $terms = $categoryTerm->getTerms(null);
+        // Check whether everything is properly inserted
+        $this->tester->assertEquals(1, $categoryTerm->total_count);
+        $this->tester->assertEquals(1, $rootTerm->total_count);
+        $this->tester->assertEquals(1, count($terms));
+        $this->tester->assertEquals($rootTermName, $terms[0]);
+        // Check for parents
+        $this->tester->assertNull($categoryTerm->getParent($terms[0]));
+        $this->tester->assertFalse($categoryTerm->hasParent($terms[0]));
+        // Check for children
+        $this->tester->assertEmpty($categoryTerm->getChildren($terms[0]));
+        $this->tester->assertFalse($categoryTerm->hasChildren($terms[0]));
+
+        // 4. Add child to the root
+        $childTermName1 = 'child1';
+        $categoryTerm->addTerm(null, [$rootTermName => $childTermName1]);
+        $categoryTerm = $this->getTaxonomy()->getTerm($taxonomy->name, true);
+        $childTerm1 = $categoryTerm->getTaxonomyTerm($childTermName1);
+        $terms = $categoryTerm->getTerms(null);
+        // Check whether everything is properly inserted
+        $this->tester->assertEquals(2, $categoryTerm->total_count);
+        $this->tester->assertEquals(1, $childTerm1->total_count);
+        $this->tester->assertEquals(2, count($terms));
+        $this->tester->assertContains($childTermName1, $terms);
+        // Check for parents
+        $this->tester->assertTrue($categoryTerm->hasParent($childTermName1));
+        $this->tester->assertEquals($rootTermName, $categoryTerm->getParent($childTermName1));
+        // Check for children
+        $this->tester->assertEmpty($categoryTerm->getChildren($childTermName1));
+        $this->tester->assertFalse($categoryTerm->hasChildren($childTermName1));
+        // Check the children of the root
+        $rootChildren = $categoryTerm->getChildren($rootTermName);
+        $this->tester->assertTrue($categoryTerm->hasChildren($rootTermName));
+        $this->tester->assertEquals(1, count($rootChildren));
+        $this->tester->assertContains($childTermName1, $rootChildren);
+
+        // 5. Test adding more than one child at a time
+        $childTermName2 = 'child2';
+        $childTermName3 = 'child3';
+        $categoryTerm->addTerm(null, [$rootTermName => [$childTermName2, $childTermName3]]);
+        $categoryTerm = $this->getTaxonomy()->getTerm($taxonomy->name, true);
+        $terms = $categoryTerm->getTerms(null);
+
+        // Test whether all child terms are attached to the root
+        $this->tester->assertEquals(4, count($terms));
+        $this->tester->assertEquals(3, count($categoryTerm->getChildren($rootTermName)));
     }
 }

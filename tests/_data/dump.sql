@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS sample_tags;
 DROP TABLE IF EXISTS sample_property;
+DROP TABLE IF EXISTS sample_categories;
 DROP TABLE IF EXISTS sample_table;
 -- DROP TABLE IF EXISTS taxonomy_def;
 -- DROP TABLE IF EXISTS taxonomy_terms;

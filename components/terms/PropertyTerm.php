@@ -75,7 +75,7 @@ class PropertyTerm extends BaseTerm {
     public function removeTerm($object_id, $params = [])
     {
         $terms = $this->getTerms($object_id, isset($params['name']) ? $params['name'] : []);
-        foreach($terms as $term=>$value) {
+        foreach($terms as $term => $value) {
             $term = $this->getTaxonomyTerm($term);
             $data['term_id'] = $term->id;
             $data['object_id'] = $object_id;
