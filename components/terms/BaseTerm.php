@@ -8,13 +8,15 @@
 
 namespace nkostadinov\taxonomy\components\terms;
 
-use Aws\S3\Exception\AccessDeniedException;
 use nkostadinov\taxonomy\components\interfaces\ITaxonomyTermInterface;
-use nkostadinov\taxonomy\models\Taxonomy;
 use nkostadinov\taxonomy\models\TaxonomyDef;
 use nkostadinov\taxonomy\models\TaxonomyTerms;
+use Yii;
 use yii\base\Exception;
 use yii\base\Object;
+use yii\db\Connection;
+use yii\db\Query;
+use yii\helpers\ArrayHelper;
 
 abstract class BaseTerm extends Object implements ITaxonomyTermInterface
 {
@@ -30,8 +32,42 @@ abstract class BaseTerm extends Object implements ITaxonomyTermInterface
     public $migration;
 
     public abstract function addTerm($object_id, $params);
-    public abstract function removeTerm($object_id, $params = []);
-    public abstract function getTerms($object_id, $name = []);
+
+    public function removeTerm($object_id, $params = [])
+    {
+        if(empty($params)) {
+            $params = $this->getTerms($object_id);
+        }
+
+        foreach($params as $item) {
+            $term = $this->getTaxonomyTerm($item);
+            $data['term_id'] = $term->id;
+            $data['object_id'] = $object_id;
+
+            $query = new Query();
+            if ($query->from($this->table)->where($data)->exists($this->getDb())) {
+                $this->getDb()->createCommand()->delete($this->table, $data)->execute();
+
+                $term->updateCounters(['total_count' => -1]);
+                Taxonomydef::updateAllCounters(['total_count' => -1], [ 'id' => $this->id ]);
+            }
+        }
+    }
+
+    public function getTerms($object_id, $name = [])
+    {
+        $query = (new Query())
+            ->select(TaxonomyTerms::tableName() . '.term')
+            ->from(TaxonomyTerms::tableName())
+            ->innerJoin($this->table, $this->table . '.term_id = taxonomy_terms.id and ' . $this->table . '.object_id=:object_id',
+                [':object_id' => $object_id])
+            ->andFilterWhere(['taxonomy_terms.term' => $name]);
+        
+        $result = [];
+        foreach($query->all() as $v)
+            $result[] = $v['term'];
+        return $result;
+    }
 
     public function listTerms()
     {
@@ -41,12 +77,12 @@ abstract class BaseTerm extends Object implements ITaxonomyTermInterface
             ->asArray()
             ->all();
 
-        return \yii\helpers\ArrayHelper::getColumn($terms, 'term');
+        return ArrayHelper::getColumn($terms, 'term');
     }
 
     public function isInstalled()
     {
-        return \Yii::$app->db->getTableSchema($this->getTable(), true) !== null;
+        return Yii::$app->db->getTableSchema($this->getTable(), true) !== null;
     }
 
     public function install()
@@ -66,11 +102,11 @@ abstract class BaseTerm extends Object implements ITaxonomyTermInterface
     /**
      * Return the db connection component.
      *
-     * @return \yii\db\Connection
+     * @return Connection
      */
     public static function getDb()
     {
-        return \Yii::$app->db;
+        return Yii::$app->db;
     }
 
     public function canInstall() {
@@ -124,7 +160,7 @@ abstract class BaseTerm extends Object implements ITaxonomyTermInterface
     {
 
         $name = $this->getMigrationFile();
-        $file = \Yii::getAlias($this->migrationPath . DIRECTORY_SEPARATOR . $name . '.php');
+        $file = Yii::getAlias($this->migrationPath . DIRECTORY_SEPARATOR . $name . '.php');
 
         //$data = get_object_vars($this);
         $data = [];
@@ -135,7 +171,7 @@ abstract class BaseTerm extends Object implements ITaxonomyTermInterface
         $data['migration'] = $name;
 
         $this->migration = $name;
-        $content = \Yii::$app->getView()->renderFile(\Yii::getAlias($this->templateFile), [ 'data' => $data ]);
+        $content = Yii::$app->getView()->renderFile(Yii::getAlias($this->templateFile), [ 'data' => $data ]);
         file_put_contents($file, $content);
         return $name;
     }

@@ -4,7 +4,7 @@ defined('YII_ENV') or define('YII_ENV', 'test');
 
 defined('YII_TEST_ENTRY_URL') or define('YII_TEST_ENTRY_URL', parse_url(\Codeception\Configuration::config()['config']['test_entry_url'], PHP_URL_PATH));
 defined('YII_TEST_ENTRY_FILE') or define('YII_TEST_ENTRY_FILE', dirname(dirname(__DIR__)) . '/web/index-test.php');
-defined('VENDOR_DIR') or define('VENDOR_DIR', __DIR__ . '/../vendor');
+defined('VENDOR_DIR') or define('VENDOR_DIR', __DIR__ . '/../../../../vendor');
 require_once(VENDOR_DIR . '/autoload.php');
 require_once(VENDOR_DIR . '/yiisoft/yii2/Yii.php');
 

@@ -1,2 +1,3 @@
 taxonomy.sqlite*
 vendor/
+/tests/_output/
