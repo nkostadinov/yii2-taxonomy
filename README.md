@@ -86,5 +86,5 @@ Basically tag represent taxonomies which are added to an object. They do not hav
 ### PropertyTerm
 They are the same as tag terms but they DO have a value. You can add multiple properties to an item.
 
-//TODO
-* add hierarchical terms (categories)
+### CategoryTerm
+Ability to create hierarchical terms (e.g. categories)
