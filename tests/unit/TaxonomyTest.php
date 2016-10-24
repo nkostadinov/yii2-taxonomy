@@ -228,8 +228,12 @@ class TaxonomyTest extends TestCase
         $this->tester->assertContains($rootTermName2, $terms);
 
         // 7. Loop detection test. Add the root as a child of one of the children
-        $this->tester->expectException('\yii\base\InvalidCallException', function() use ($categoryTerm, $childTermName3, $rootTermName) {
+        $exceptionTrown = false;
+        try {
             $categoryTerm->addTerm(null, [$childTermName3 => $rootTermName]);
-        });
+        } catch (Exception $ex) {
+            $exceptionTrown = true;
+        }
+        $this->tester->assertTrue($exceptionTrown);
     }
 }
