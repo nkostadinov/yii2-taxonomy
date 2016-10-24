@@ -216,5 +216,15 @@ class TaxonomyTest extends TestCase
         // Test whether all child terms are attached to the root
         $this->tester->assertEquals(4, count($terms));
         $this->tester->assertEquals(3, count($categoryTerm->getChildren($rootTermName)));
+
+        // 6. Test adding term to an existing object
+        $rootTermName2 = 'root2';
+        $categoryTerm->addTerm(1, $rootTermName2); // Add a term as a string, not as an array
+        $categoryTerm = $this->getTaxonomy()->getTerm($taxonomy->name, true);
+
+        // Check whether everything is properly inserted
+        $terms = $categoryTerm->getTerms(1);
+        $this->tester->assertEquals(1, count($terms));
+        $this->tester->assertContains($rootTermName2, $terms);
     }
 }

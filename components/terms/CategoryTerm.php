@@ -2,12 +2,12 @@
 
 namespace nkostadinov\taxonomy\components\terms;
 
-use insight\core\helpers\ArrayHelper;
 use nkostadinov\taxonomy\components\interfaces\IHierarchicalTerm;
 use nkostadinov\taxonomy\models\TaxonomyDef;
 use nkostadinov\taxonomy\models\TaxonomyTerms;
 use Yii;
 use yii\db\Query;
+use yii\helpers\ArrayHelper;
 
 class CategoryTerm extends TagTerm implements IHierarchicalTerm
 {
@@ -15,25 +15,31 @@ class CategoryTerm extends TagTerm implements IHierarchicalTerm
 
     public function getTerms($object_id, $name = [])
     {
-        $query = (new Query())
+        $query = TaxonomyTerms::find()
             ->select(TaxonomyTerms::tableName() . '.term')
-            ->from(TaxonomyTerms::tableName())
-            ->innerJoin($this->table, $this->table . '.term_id = taxonomy_terms.id',
-                [':object_id' => $object_id])
+            ->innerJoin($this->table, $this->table . '.term_id = taxonomy_terms.id')
             ->andFilterWhere(['taxonomy_terms.term' => $name]);
 
         if ($object_id) {
             $query->onCondition("$this->table.object_id = $object_id");
         }
 
-        $result = [];
-        foreach($query->all() as $v) {
-            $result[] = $v['term'];
-        }
-
-        return $result;
+        return ArrayHelper::getColumn($query->all(), 'term');
     }
 
+    /**
+     * Add term/s with the ability to make hierarchies.
+     *
+     * The object_id can be skipped. In this case a hierarchy will be created without being attached to an object.
+     *
+     * $params can be a string or an array:
+     *  - If string, this is considered to be a root of a hierarchy;
+     *  - If array, if only filled with values, this means these are all roots of a hierarchy;
+     *  - If array and key => value is given, the key is the parent, the root is the child.
+     *
+     * @param integer $object_id Id to and object. Not mandatory.
+     * @param string|array $params Terms
+     */
     public function addTerm($object_id, $params)
     {
         $cachedParents = [];
@@ -64,6 +70,7 @@ class CategoryTerm extends TagTerm implements IHierarchicalTerm
             }
         };
 
+        $params = (array) $params;
         foreach ($params as $parent => $item) {
             if (is_array($item)) {
                 foreach ($item as $child) {
