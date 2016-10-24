@@ -2,16 +2,16 @@
 
 namespace nkostadinov\taxonomy\components\terms;
 
-use nkostadinov\taxonomy\components\interfaces\IHierarchicalTerm;
 use nkostadinov\taxonomy\models\TaxonomyDef;
 use nkostadinov\taxonomy\models\TaxonomyTerms;
 use Yii;
+use yii\base\InvalidCallException;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
 
-class CategoryTerm extends TagTerm implements IHierarchicalTerm
+class CategoryTerm extends HierarchicalTerm
 {
-    public $templateFile = '@nkostadinov/taxonomy/migrations/template/category.php' ;
+    public $templateFile = '@nkostadinov/taxonomy/migrations/template/category.php';
 
     public function getTerms($object_id, $name = [])
     {
@@ -45,6 +45,10 @@ class CategoryTerm extends TagTerm implements IHierarchicalTerm
         $cachedParents = [];
 
         $addTerm = function ($parent, $item) use ($object_id, &$cachedParents) {
+            if ($this->detectLoop($parent, $item)) {
+                throw new InvalidCallException('Loop detected! Cannot add parent as a child!');
+            }
+
             $term = $this->getTaxonomyTerm($item);
             $data['term_id'] = $term->id;
             $data['object_id'] = $object_id;
