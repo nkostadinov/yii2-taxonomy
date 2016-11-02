@@ -17,11 +17,11 @@ class CategoryTerm extends TagTerm implements IHierarchicalTerm
     {
         $query = TaxonomyTerms::find()
             ->select(TaxonomyTerms::tableName() . '.term')
-            ->innerJoin($this->table, $this->table . '.term_id = taxonomy_terms.id')
             ->andFilterWhere(['taxonomy_terms.term' => $name]);
 
         if ($object_id) {
-            $query->onCondition("$this->table.object_id = $object_id");
+            $query->innerJoin($this->table, $this->table . '.term_id = taxonomy_terms.id')
+                  ->onCondition("$this->table.object_id = $object_id");
         }
 
         return ArrayHelper::getColumn($query->all(), 'term');
@@ -46,9 +46,7 @@ class CategoryTerm extends TagTerm implements IHierarchicalTerm
 
         $addTerm = function ($parent, $item) use ($object_id, &$cachedParents) {
             $term = $this->getTaxonomyTerm($item);
-            $data['term_id'] = $term->id;
-            $data['object_id'] = $object_id;
-
+            
             if (array_key_exists($parent, $cachedParents)) {
                 $term->parent_id = $cachedParents[$parent]->id;
             } else if (is_string($parent)) {
@@ -57,16 +55,22 @@ class CategoryTerm extends TagTerm implements IHierarchicalTerm
                 $term->parent_id = $parentTerm->id;
             }
 
-            if (!(new Query())->from($this->table)->where($data)->exists(CategoryTerm::getDb())) {
-                Yii::$app->db->transaction(function() use ($data, $term) {
-                    if ($term->getDirtyAttributes(['parent_id'])) {
-                        $term->save(false);
-                    }
-                    CategoryTerm::getDb()->createCommand()->insert($this->table, $data)->execute();
+            if ($term->getDirtyAttributes(['parent_id'])) {
+                $term->save(false);
+            }
 
-                    $term->updateCounters(['total_count' => 1]);
-                    TaxonomyDef::updateAllCounters(['total_count' => 1], ['id' => $this->id]);
-                });
+            if ($object_id) {
+                $data['term_id'] = $term->id;
+                $data['object_id'] = $object_id;
+                
+                if (!(new Query())->from($this->table)->where($data)->exists(CategoryTerm::getDb())) {
+                    Yii::$app->db->transaction(function() use ($data, $term) {
+                        CategoryTerm::getDb()->createCommand()->insert($this->table, $data)->execute();
+
+                        $term->updateCounters(['total_count' => 1]);
+                        TaxonomyDef::updateAllCounters(['total_count' => 1], ['id' => $this->id]);
+                    });
+                }
             }
         };
 

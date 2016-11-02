@@ -4,6 +4,7 @@ use nkostadinov\taxonomy\components\terms\CategoryTerm;
 use nkostadinov\taxonomy\components\terms\PropertyTerm;
 use nkostadinov\taxonomy\components\terms\TagTerm;
 use nkostadinov\taxonomy\models\TaxonomyDef;
+use nkostadinov\taxonomy\models\TaxonomyTerms;
 use nkostadinov\taxonomy\Taxonomy;
 use nkostadinov\taxonomy\tests\models\SampleTable;
 use yii\codeception\TestCase;
@@ -172,8 +173,8 @@ class TaxonomyTest extends TestCase
         $rootTerm = $categoryTerm->getTaxonomyTerm($rootTermName);
         $terms = $categoryTerm->getTerms(null);
         // Check whether everything is properly inserted
-        $this->tester->assertEquals(1, $categoryTerm->total_count);
-        $this->tester->assertEquals(1, $rootTerm->total_count);
+        $this->tester->assertEquals(0, $categoryTerm->total_count);
+        $this->tester->assertEquals(0, $rootTerm->total_count);
         $this->tester->assertEquals(1, count($terms));
         $this->tester->assertEquals($rootTermName, $terms[0]);
         // Check for parents
@@ -190,8 +191,8 @@ class TaxonomyTest extends TestCase
         $childTerm1 = $categoryTerm->getTaxonomyTerm($childTermName1);
         $terms = $categoryTerm->getTerms(null);
         // Check whether everything is properly inserted
-        $this->tester->assertEquals(2, $categoryTerm->total_count);
-        $this->tester->assertEquals(1, $childTerm1->total_count);
+        $this->tester->assertEquals(0, $categoryTerm->total_count);
+        $this->tester->assertEquals(0, $childTerm1->total_count);
         $this->tester->assertEquals(2, count($terms));
         $this->tester->assertContains($childTermName1, $terms);
         // Check for parents
@@ -221,10 +222,48 @@ class TaxonomyTest extends TestCase
         $rootTermName2 = 'root2';
         $categoryTerm->addTerm(1, $rootTermName2); // Add a term as a string, not as an array
         $categoryTerm = $this->getTaxonomy()->getTerm($taxonomy->name, true);
+        $rootTerm2 = $categoryTerm->getTaxonomyTerm($rootTermName2);
 
         // Check whether everything is properly inserted
         $terms = $categoryTerm->getTerms(1);
         $this->tester->assertEquals(1, count($terms));
         $this->tester->assertContains($rootTermName2, $terms);
+        // Check the counters
+        $this->tester->assertEquals(1, $categoryTerm->total_count);
+        $this->tester->assertEquals(1, $rootTerm2->total_count);
+
+        // Check whether all terms will be returned
+        $terms = $categoryTerm->getTerms(null);
+        $this->tester->assertEquals(5, count($terms));
+
+        // Add child
+
+        $childTermName4 = 'child4';
+        $categoryTerm->addTerm(1, [$rootTermName2 => $childTermName4]);
+        $categoryTerm = $this->getTaxonomy()->getTerm($taxonomy->name, true);
+        $rootTerm2 = $categoryTerm->getTaxonomyTerm($rootTermName2);
+        $childTerm4 = $categoryTerm->getTaxonomyTerm($childTermName4);
+
+        $terms = $categoryTerm->getTerms(1);
+        $this->tester->assertEquals(2, count($terms));
+        $this->tester->assertEquals(2, $categoryTerm->total_count);
+        $this->tester->assertEquals(1, $rootTerm2->total_count);
+        $this->tester->assertEquals(1, $childTerm4->total_count);
+
+        // 7. Adding two hierarchies at once
+        TaxonomyTerms::deleteAll();
+
+        $categoryTerm->addTerm(null, [
+            $rootTermName => [
+                $childTermName1,
+                $childTermName2
+            ],
+            $rootTermName2
+        ]);
+        $categoryTerm = $this->getTaxonomy()->getTerm($taxonomy->name, true);
+        $terms = $categoryTerm->getTerms(null);
+
+        $this->tester->assertEquals(4, count($terms));
+        $this->tester->assertEquals(0, $categoryTerm->total_count);
     }
 }
