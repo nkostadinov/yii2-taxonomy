@@ -17,6 +17,7 @@ class CategoryTerm extends HierarchicalTerm
     {
         $query = TaxonomyTerms::find()
             ->select(TaxonomyTerms::tableName() . '.term')
+            ->where("taxonomy_id = $this->id")
             ->andFilterWhere(['taxonomy_terms.term' => $name]);
 
         if ($object_id) {
