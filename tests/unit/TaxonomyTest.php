@@ -250,7 +250,16 @@ class TaxonomyTest extends TestCase
         $this->tester->assertEquals(1, $rootTerm2->total_count);
         $this->tester->assertEquals(1, $childTerm4->total_count);
 
-        // 7. Adding two hierarchies at once
+        // 7. Loop detection test. Add the root as a child of one of the children
+        $exceptionTrown = false;
+        try {
+            $categoryTerm->addTerm(null, [$childTermName3 => $rootTermName]);
+        } catch (Exception $ex) {
+            $exceptionTrown = true;
+        }
+        $this->tester->assertTrue($exceptionTrown);
+
+        // 8. Adding two hierarchies at once
         TaxonomyTerms::deleteAll();
 
         $categoryTerm->addTerm(null, [
@@ -264,6 +273,5 @@ class TaxonomyTest extends TestCase
         $terms = $categoryTerm->getTerms(null);
 
         $this->tester->assertEquals(4, count($terms));
-        $this->tester->assertEquals(0, $categoryTerm->total_count);
     }
 }

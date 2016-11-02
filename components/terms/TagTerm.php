@@ -13,7 +13,7 @@ use yii\db\Query;
 
 class TagTerm extends BaseTerm
 {
-    public $templateFile = '@nkostadinov/taxonomy/migrations/template/tag.php' ;
+    public $templateFile = '@nkostadinov/taxonomy/migrations/template/tag.php';
 
     public function addTerm($object_id, $params)
     {
