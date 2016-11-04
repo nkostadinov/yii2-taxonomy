@@ -6,6 +6,7 @@ DROP TABLE IF EXISTS sample_table;
 -- DROP TABLE IF EXISTS taxonomy_terms;
 
 DELETE FROM taxonomy_test.taxonomy_def;
+DELETE FROM taxonomy_test.taxonomy_terms;
 
 CREATE TABLE sample_table
 (
