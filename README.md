@@ -37,6 +37,11 @@ Then you need to configure the taxonomy component to your configuration file.
         .......
 ```        
 
+Finally you need to run the initial migration
+```
+yii migrate --migrationPath=@nkostadinov/taxonomy/migrations
+```
+
 Usage
 -----
 
