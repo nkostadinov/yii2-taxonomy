@@ -9,13 +9,13 @@
 namespace nkostadinov\taxonomy\components\interfaces;
 
 
-interface ITaxonomyTermInterface {
-
+interface ITaxonomyTermInterface
+{
     public function install();
     public function uninstall();
 
     public function addTerm($object_id, $params);
     public function removeTerm($object_id, $params = []);
     public function getTerms($object_id, $name = []);
-    public function listTerms();
+    public function setTerms($object_id, $params = []);
 }
