@@ -166,8 +166,8 @@ class TaxonomyTest extends TestCase
         $term->setTerms($object_id, ['prop1' => 'value1', 'prop3' => 'value3']);
         $data = $term->getTerms($object_id);
         
-        $this->tester->assertArrayHasKey('prop1', $data, 'Property prop1 is missing');
-        $this->tester->assertArrayHasKey('prop3', $data, 'Property prop3 is missing');
+        $this->tester->assertTrue(array_key_exists('prop1', $data), 'Property prop1 is missing');
+        $this->tester->assertTrue(array_key_exists('prop3', $data), 'Property prop3 is missing');
         $this->tester->assertArrayNotHasKey('prop2', $data, 'Property prop2 must not be here');
 
         // 5. Test PropertyTerm::removeTerm()
