@@ -15,8 +15,8 @@ use yii\db\Query;
 use yii\db\Schema;
 use yii\helpers\ArrayHelper;
 
-class PropertyTerm extends BaseTerm {
-
+class PropertyTerm extends BaseTerm
+{
     public $templateFile = '@nkostadinov/taxonomy/migrations/template/properties.php' ;
 
     public $updateOnExist = true;
@@ -67,14 +67,14 @@ class PropertyTerm extends BaseTerm {
                     $transaction->rollBack();
                 }
             } elseif($this->updateOnExist) {
-                $this->getDb()->createCommand()->update($this->getTable(), [ 'value' => $value ], $data)->execute();
+                $this->getDb()->createCommand()->update($this->getTable(), ['value' => $value], $data)->execute();
             }
         }
     }
 
     public function removeTerm($object_id, $params = [])
     {
-        $terms = $this->getTerms($object_id, isset($params['name']) ? $params['name'] : []);
+        $terms = $this->getTerms($object_id, $params);
         foreach($terms as $term => $value) {
             $term = $this->getTaxonomyTerm($term);
             $data['term_id'] = $term->id;
@@ -98,8 +98,7 @@ class PropertyTerm extends BaseTerm {
             ->innerJoin($this->getTable(), $this->getTable() . '.term_id = taxonomy_terms.id and ' . $this->getTable() . '.object_id=:object_id',
                 [':object_id' => $object_id])
             ->andFilterWhere([TaxonomyTerms::tableName() . '.term' => $name]);
-        foreach($query->all() as $v)
-            $result[$v['term']] = $v['value'];
-        return isset($result) ? $result : [];
+
+        return ArrayHelper::map($query->all(), 'term', 'value');
     }
 }

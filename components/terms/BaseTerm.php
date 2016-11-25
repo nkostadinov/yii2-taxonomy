@@ -54,30 +54,27 @@ abstract class BaseTerm extends Object implements ITaxonomyTermInterface
         }
     }
 
-    public function getTerms($object_id, $name = [])
+    public function getTerms($object_id = null, $name = [])
     {
-        $query = (new Query())
-            ->select(TaxonomyTerms::tableName() . '.term')
-            ->from(TaxonomyTerms::tableName())
-            ->innerJoin($this->table, $this->table . '.term_id = taxonomy_terms.id and ' . $this->table . '.object_id=:object_id',
-                [':object_id' => $object_id])
-            ->andFilterWhere(['taxonomy_terms.term' => $name]);
-        
-        $result = [];
-        foreach($query->all() as $v)
-            $result[] = $v['term'];
-        return $result;
-    }
-
-    public function listTerms()
-    {
-        $terms = TaxonomyTerms::find()
+        $query = TaxonomyTerms::find()
             ->select('term')
             ->where(['taxonomy_id' => $this->id])
-            ->asArray()
-            ->all();
+            ->andFilterWhere(['taxonomy_terms.term' => $name]);
 
-        return ArrayHelper::getColumn($terms, 'term');
+        if ($object_id) {
+            $query->innerJoin($this->table, $this->table . '.term_id = taxonomy_terms.id')
+                  ->onCondition("$this->table.object_id = $object_id");
+        }
+        
+        return ArrayHelper::getColumn($query->all(), 'term');
+    }
+
+    public function setTerms($object_id, $params = [])
+    {
+        Yii::$app->db->transaction(function() use ($object_id, $params) {
+            $this->removeTerm($object_id);
+            $this->addTerm($object_id, $params);
+        });
     }
 
     public function isInstalled()

@@ -111,6 +111,24 @@ class TaxonomyTest extends TestCase
         $data = $this->getTaxonomy()->getTerms($term->name, $object_id); // tag1 + tag2
         $this->tester->assertEmpty($data, 'Tag term data not correct!');
         $this->tester->assertNotContains('tag1', $data, 'Tag1 present in data');
+
+        // 4. setTerms() test
+        $term->addTerm($object_id, ['tag1', 'tag2']); // Add new terms
+        $term->setTerms($object_id, ['tag1', 'tag3', 'tag4']); // Overwrite all terms of this object
+        $data = $term->getTerms($object_id);
+
+        $this->tester->assertEquals(3, count($data), 'Wrong term count!');
+        $this->tester->assertContains('tag1', $data, 'Tag1 missing in data');
+        $this->tester->assertContains('tag3', $data, 'Tag3 missing in data');
+        $this->tester->assertContains('tag4', $data, 'Tag4 missing in data');
+        $this->tester->assertNotContains('tag2', $data, 'Tag2 must not be present in data');
+
+        // 5. getTerms test
+        $data = $term->getTerms($object_id); // Get all terms of the given object
+        $this->tester->assertEquals(3, count($data), 'Wrong term count!');
+        
+        $data = $term->getTerms(); // Get all terms currently present in the system
+        $this->tester->assertEquals(4, count($data), 'Wrong term count!');
     }
 
     /**
@@ -118,10 +136,6 @@ class TaxonomyTest extends TestCase
      */
     public function testProperties()
     {
-        $this->markTestSkipped(
-            'Not ready yet.'
-        );
-
         $object_id = 3;
         //1. Add TAG taxonomy
         $term = new TaxonomyDef();
@@ -147,7 +161,19 @@ class TaxonomyTest extends TestCase
         $data = $this->getTaxonomy()->getTerms($term->name, $object_id);
         $this->tester->assertEquals('value1_update', $data['prop1'], 'Property value not updated');
 
-        $data = SampleTable::find()->hasTags()->all();
+        // 4. Test PropertyTerm::setTerms()
+        $term = $this->getTaxonomy()->getTerm($term->name);
+        $term->setTerms($object_id, ['prop1' => 'value1', 'prop3' => 'value3']);
+        $data = $term->getTerms($object_id);
+        
+        $this->tester->assertTrue(array_key_exists('prop1', $data), 'Property prop1 is missing');
+        $this->tester->assertTrue(array_key_exists('prop3', $data), 'Property prop3 is missing');
+        $this->tester->assertFalse(array_key_exists('prop2', $data), 'Property prop2 must not be here');
+
+        // 5. Test PropertyTerm::removeTerm()
+        $term->removeTerm($object_id, array_keys($data));
+        $data = $term->getTerms($object_id);
+        $this->tester->assertEmpty($data, 'Data must be empty');
     }
 
     public function testCategories()
@@ -273,5 +299,48 @@ class TaxonomyTest extends TestCase
         $terms = $categoryTerm->getTerms(null);
 
         $this->tester->assertEquals(4, count($terms));
+
+        // 9. setTerms() test
+        TaxonomyTerms::deleteAll();
+        
+        $categoryTerm->addTerm(1, [$rootTermName, $rootTermName2 => [$childTermName1, $childTermName2]]);
+        $terms = $categoryTerm->getTerms(1);
+        $this->tester->assertEquals(4, count($terms));
+
+        $categoryTerm->setTerms(1, [$rootTermName, $rootTermName2 => [$childTermName1, 'child2Changed']]);
+        $terms = $categoryTerm->getTerms(1);
+        $this->tester->assertEquals(4, count($terms));
+        $this->tester->assertContains($rootTermName, $terms);
+        $this->tester->assertContains($rootTermName2, $terms);
+        $this->tester->assertContains($childTermName1, $terms);
+        $this->tester->assertContains('child2Changed', $terms);
+        
+        $categoryTerm->setTerms(1, [$rootTermName, $rootTermName2 => [$childTermName1]]);
+        $terms = $categoryTerm->getTerms(1);
+        $this->tester->assertEquals(3, count($terms));
+        $this->tester->assertContains($rootTermName, $terms);
+        $this->tester->assertContains($rootTermName2, $terms);
+        $this->tester->assertContains($childTermName1, $terms);
+        
+        $categoryTerm->setTerms(1, [$rootTermName, 'root2Changed' => [$childTermName1]]);
+        $terms = $categoryTerm->getTerms(1);
+        $this->tester->assertEquals(3, count($terms));
+        $this->tester->assertContains($rootTermName, $terms);
+        $this->tester->assertContains('root2Changed', $terms);
+        $this->tester->assertContains($childTermName1, $terms);
+
+        $categoryTerm->setTerms(1, [$rootTermName]);
+        $terms = $categoryTerm->getTerms(1);
+        $this->tester->assertEquals(1, count($terms));
+        $this->tester->assertContains($rootTermName, $terms);
+
+        $categoryTerm->setTerms(1, ['rootChanged']);
+        $terms = $categoryTerm->getTerms(1);
+        $this->tester->assertEquals(1, count($terms));
+        $this->tester->assertContains('rootChanged', $terms);
+
+        $categoryTerm->setTerms(1);
+        $terms = $categoryTerm->getTerms(1);
+        $this->tester->assertEquals(0, count($terms));
     }
 }

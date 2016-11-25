@@ -13,21 +13,6 @@ class CategoryTerm extends HierarchicalTerm
 {
     public $templateFile = '@nkostadinov/taxonomy/migrations/template/category.php';
 
-    public function getTerms($object_id, $name = [])
-    {
-        $query = TaxonomyTerms::find()
-            ->select(TaxonomyTerms::tableName() . '.term')
-            ->where("taxonomy_id = $this->id")
-            ->andFilterWhere(['taxonomy_terms.term' => $name]);
-
-        if ($object_id) {
-            $query->innerJoin($this->table, $this->table . '.term_id = taxonomy_terms.id')
-                  ->onCondition("$this->table.object_id = $object_id");
-        }
-
-        return ArrayHelper::getColumn($query->all(), 'term');
-    }
-
     /**
      * Add term/s with the ability to make hierarchies.
      *
@@ -45,7 +30,7 @@ class CategoryTerm extends HierarchicalTerm
     {
         $cachedParents = [];
 
-        $addTerm = function ($parent, $item) use ($object_id, &$cachedParents) {
+        $addTerm = function ($parent, $item) use ($object_id, &$cachedParents, &$addTerm) {
             if ($this->detectLoop($parent, $item)) {
                 throw new InvalidCallException('Loop detected! Cannot add parent as a child!');
             }
@@ -57,6 +42,7 @@ class CategoryTerm extends HierarchicalTerm
                 $parentTerm = $this->getTaxonomyTerm($parent);
                 $cachedParents[$parent] = $parentTerm;
                 $term->parent_id = $parentTerm->id;
+                $addTerm(null, $parent); // Assign object id to the parent as well!
             }
 
             if ($term->getDirtyAttributes(['parent_id'])) {
