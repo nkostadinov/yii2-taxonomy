@@ -25,7 +25,7 @@ class TagSupportBehavior extends Behavior
         ];
     }
 
-    public function afterSave(AfterSaveEvent $event)
+    public function afterSave()
     {
         foreach ($this->_tags as $name => $value) {
             /*
@@ -52,7 +52,7 @@ class TagSupportBehavior extends Behavior
 
     public function __get($name)
     {
-        $this->loadTagTaxonomy($name);
+        $this->loadTaxonomy($name);
         if (!$this->owner->isNewRecord && !isset($this->_tags[$name])) {
             $this->_tags[$name] = $this->taxonomies[$name]->getTerms($this->owner->id);
         }
@@ -63,12 +63,12 @@ class TagSupportBehavior extends Behavior
     public function __set($name, $value)
     {
         if (isset($this->taxonomies[$name])) {
-            $this->loadTagTaxonomy($name);
+            $this->loadTaxonomy($name);
             $this->_tags[$name] = $value;
         }
     }
 
-    private function loadTagTaxonomy($name)
+    private function loadTaxonomy($name)
     {
         if (is_string($this->taxonomies[$name])) {
             $this->taxonomies[$name] = Yii::$app->taxonomy->getTerm($this->taxonomies[$name]);
