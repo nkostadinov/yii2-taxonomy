@@ -84,21 +84,15 @@ class CategoryTerm extends HierarchicalTerm
      * @param integer $object_id The object id whose terms are changed.
      * @param array $params The replacement
      * @return An array with the TaxonomyTerms set
-     * @throws NotFoundHttpException If a parent is not found
      */
     public function setTerms($object_id, $params = [])
     {
         $result = [];
 
-        foreach ($params as $parent_id => $children) {
-            $parent = TaxonomyTerms::findOne($parent_id);
-            if (!$parent) {
-                throw new NotFoundHttpException("Parent with id '$parent_id' does not exist!");
-            }
-
+        foreach (TaxonomyTerms::findAll(array_keys($params)) as $parent) {
             $parentsChildren = $this->getChildren($parent->id);
             $this->removeTerm($object_id, ArrayHelper::getColumn($parentsChildren, 'id'));
-            $result = array_merge($result, $this->addTerm($object_id, $children));
+            $result = array_merge($result, $this->addTerm($object_id, $params[$parent->id]));
         }
 
         return $result;

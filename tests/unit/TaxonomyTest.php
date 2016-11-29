@@ -291,11 +291,6 @@ class TaxonomyTest extends TestCase
         $this->tester->assertContains($childName2, $terms);
         $this->tester->assertContains($childName3, $terms);
 
-        // 2. Set terms to unexisting terms
-        $this->assertExceptionThrown(function() use ($categoryTerm) {
-            $categoryTerm->setTerms(1, [500 => [12]]);
-        });
-
         // ***************CategoryTerm::setTerms() tests end*****************
 
         // ***************getChildren(), hasChildren(), getParent(), hasParent() tests start*****************
