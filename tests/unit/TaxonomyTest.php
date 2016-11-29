@@ -192,190 +192,135 @@ class TaxonomyTest extends TestCase
         $categoryTerm = $this->getTaxonomy()->getTerm($taxonomy->name);
         $this->tester->assertTrue($categoryTerm->isInstalled(), 'The taxonomy must be installed.');
 
-        // 3. Add a root category without an object id
+        // ***************CategoryTerm::createCategory() tests start*****************
+
+        // 3. Add a root category of type array
         $rootTermName = 'root';
-        $rootTerm = $categoryTerm->addTerm(null, $rootTermName);
-        $categoryTerm = $this->getTaxonomy()->getTerm($taxonomy->name, true);
-        // Check whether everything is properly inserted
+        $this->assertExceptionThrown(function() use ($categoryTerm, $rootTermName) {
+            $categoryTerm->createCategory([$rootTermName]);
+        });
+
+        // 3a. Create a root term
+        $rootTerm = $categoryTerm->createCategory($rootTermName);
         $this->tester->assertNotNull($rootTerm);
-        $this->tester->assertEquals($rootTerm->term, $rootTermName);
-        // Check for parents
-        $this->tester->assertNull($categoryTerm->getParent($rootTermName));
-        $this->tester->assertFalse($categoryTerm->hasParent($rootTermName));
-        // Check for children
-        $this->tester->assertEmpty($categoryTerm->getChildren($rootTermName));
-        $this->tester->assertFalse($categoryTerm->hasChildren($rootTermName));
+        $this->tester->assertEquals($rootTermName, $rootTerm->term);
 
-        // 4. Add child to the root
-        $childTermName1 = 'child1';
-        $result = $categoryTerm->addTerm(null, [$rootTerm->id => $childTermName1]);
-        $categoryTerm = $this->getTaxonomy()->getTerm($taxonomy->name, true);
-        $terms = $categoryTerm->getTerms(null);
-        // Check whether everything is properly inserted
-        $this->tester->assertNotEmpty($result);
+        // 4. Add a child of wrong type
+        $this->assertExceptionThrown(function() use ($categoryTerm, $rootTerm) {
+            $categoryTerm->createCategory((int) $rootTerm->id, 321);
+        });
+
+        // 5. Adding an array of children where the child name is not a string
+        $this->assertExceptionThrown(function() use ($categoryTerm, $rootTerm) {
+            $categoryTerm->createCategory((int) $rootTerm->id, [321]);
+        });
+
+        // 6. Attatching children to a non-existing parent
+        $this->assertExceptionThrown(function() use ($categoryTerm) {
+            $categoryTerm->createCategory(500, ['Test', 'Test2']);
+        });
+
+        // 7. Adding a child to a parent
+        $childName1 = 'child1';
+        $result = $categoryTerm->createCategory((int) $rootTerm->id, [$childName1]);
+
         $this->tester->assertEquals(1, count($result));
-        $this->tester->assertEquals($childTermName1, $result[0]->term);
-
+        $this->tester->assertEquals($childName1, $result[0]->term);
+        $this->tester->assertTrue($categoryTerm->hasParent($result[0]->id));
+        $this->tester->assertTrue($categoryTerm->hasChildren($rootTerm->id));
+        
+        $categoryTerm = $this->getTaxonomy()->getTerm($taxonomy->name);
+        $terms = $categoryTerm->getTerms();
         $this->tester->assertEquals(2, count($terms));
-        $this->tester->assertContains($childTermName1, $terms);
-        // Check for parents
-        $this->tester->assertTrue($categoryTerm->hasParent($childTermName1));
-        $this->tester->assertEquals($rootTermName, $categoryTerm->getParent($childTermName1));
-        // Check for children
-        $this->tester->assertEmpty($categoryTerm->getChildren($childTermName1));
-        $this->tester->assertFalse($categoryTerm->hasChildren($childTermName1));
-        // Check the children of the root
-        $rootChildren = $categoryTerm->getChildren($rootTermName);
-        $this->tester->assertTrue($categoryTerm->hasChildren($rootTermName));
-        $this->tester->assertEquals(1, count($rootChildren));
-        $this->tester->assertContains($childTermName1, $rootChildren);
+        $this->tester->assertContains($rootTermName, $terms);
+        $this->tester->assertContains($childName1, $terms);
 
-        // 5. Test adding more than one child at a time
-        $childTermName2 = 'child2';
-        $childTermName3 = 'child3';
-        $result = $categoryTerm->addTerm(null, [$rootTerm->id => [$childTermName2, $childTermName3]]);
-        $categoryTerm = $this->getTaxonomy()->getTerm($taxonomy->name, true);
-        $terms = $categoryTerm->getTerms(null);
+        $childTerm1 = $result[0];
 
-        $this->tester->assertEquals(2, count($result));
+        // ***************CategoryTerm::createCategory() tests end*****************
 
-        // Test whether all child terms are attached to the root
-        $this->tester->assertEquals(4, count($terms));
-        $this->tester->assertEquals(3, count($categoryTerm->getChildren($rootTermName)));
+        // ***************CategoryTerm::addTerm() tests start*****************
 
-        // 6. Test adding term to an existing object
-        $rootTermName2 = 'root2';
-        $result = $categoryTerm->addTerm(1, $rootTermName2);
-        $categoryTerm = $this->getTaxonomy()->getTerm($taxonomy->name, true);
-        $rootTerm2 = $categoryTerm->getTaxonomyTerm($rootTermName2);
-
-        $this->tester->assertNotNull($result);
-        $this->tester->assertEquals($rootTermName2, $result->term);
-
-        // Check whether everything is properly inserted
-        $terms = $categoryTerm->getTerms(1);
+        // 1. Assigning one existing term to an object
+        $terms = $categoryTerm->addTerm(1, $rootTerm->id);
         $this->tester->assertEquals(1, count($terms));
-        $this->tester->assertContains($rootTermName2, $terms);
-        // Check the counters
+        $this->tester->assertEquals($rootTermName, $terms[0]->term);
+
+        $categoryTerm = $this->getTaxonomy()->getTerm($taxonomy->name, true);
+        $rootTerm = $categoryTerm->getTaxonomyTerm($rootTermName);
+        $terms = $categoryTerm->getTerms(1);
+
         $this->tester->assertEquals(1, $categoryTerm->total_count);
-        $this->tester->assertEquals(1, $rootTerm2->total_count);
+        $this->tester->assertEquals(1, $rootTerm->total_count);
+        $this->tester->assertEquals(1, count($terms));
+        $this->tester->assertContains($rootTermName, $terms);
 
-        // Check whether all terms will be returned
-        $terms = $categoryTerm->getTerms(null);
-        $this->tester->assertEquals(5, count($terms));
+        // 2. Assigning one existing term to an object as an array
+        $terms = $categoryTerm->addTerm(1, [$childTerm1->id]);
+        $this->tester->assertEquals(1, count($terms));
+        $this->tester->assertEquals($childName1, $terms[0]->term);
 
-        // Add child
-
-        $childTermName4 = 'child4';
-        $categoryTerm->addTerm(1, [$result->id => $childTermName4]); // Result is the TaxonomyTerm root from the previos test
         $categoryTerm = $this->getTaxonomy()->getTerm($taxonomy->name, true);
-        $rootTerm2 = $categoryTerm->getTaxonomyTerm($rootTermName2);
-        $childTerm4 = $categoryTerm->getTaxonomyTerm($childTermName4);
+        $childTerm = $categoryTerm->getTaxonomyTerm($childName1);
+        $terms = $categoryTerm->getTerms(1);
+
+        $this->tester->assertEquals(2, $categoryTerm->total_count);
+        $this->tester->assertEquals(1, $childTerm->total_count);
+        $this->tester->assertEquals(2, count($terms));
+        $this->tester->assertContains($rootTermName, $terms);
+        $this->tester->assertContains($childName1, $terms);
+
+        // ***************CategoryTerm::addTerm() tests end*****************
+
+        // ***************CategoryTerm::setTerms() tests start*****************
+
+        $childName2 = 'child2';
+        $childName3 = 'child3';
+        $childName4 = 'child4';
+        $createdTerms = $categoryTerm->createCategory((int) $rootTerm->id, [$childName2, $childName3, $childName4]);
 
         $terms = $categoryTerm->getTerms(1);
         $this->tester->assertEquals(2, count($terms));
-        $this->tester->assertEquals(2, $categoryTerm->total_count);
-        $this->tester->assertEquals(1, $rootTerm2->total_count);
-        $this->tester->assertEquals(1, $childTerm4->total_count);
 
-        // 7. Loop detection test. Add the root as a child of one of the children
+        // 1. Change the terms where the object is assigned
+        $result = $categoryTerm->setTerms(1, [$rootTerm->id => [$createdTerms[0]->id, $createdTerms[1]->id]]);
+        $terms = $categoryTerm->getTerms(1);
+        
+        $this->tester->assertEquals(2, count($result));
+        $this->tester->assertEquals(3, count($terms));
+        $this->tester->assertContains($childName2, $terms);
+        $this->tester->assertContains($childName3, $terms);
+
+        // 2. Set terms to unexisting terms
+        $this->assertExceptionThrown(function() use ($categoryTerm) {
+            $categoryTerm->setTerms(1, [500 => [12]]);
+        });
+
+        // ***************CategoryTerm::setTerms() tests end*****************
+
+        // ***************getChildren(), hasChildren(), getParent(), hasParent() tests start*****************
+
+        $this->tester->assertTrue($categoryTerm->hasChildren($rootTerm->id));
+        $children = $categoryTerm->getChildren($rootTerm->id);
+        $this->tester->assertEquals(4, count($children));
+
+        $this->tester->assertTrue($categoryTerm->hasParent($childTerm->id));
+        $parent = $categoryTerm->getParent($childTerm->id);
+        $this->tester->assertNotNull($parent);
+        $this->tester->assertEquals($rootTermName, $parent->term);
+
+        // ***************getChildren(), hasChildren(), getParent(), hasParent() tests end*****************
+
+    }
+
+    private function assertExceptionThrown($callback)
+    {
         $exceptionTrown = false;
         try {
-            $childTerm3 = $categoryTerm->getTaxonomyTerm($childTermName3);
-            $categoryTerm->addTerm(null, [$childTerm3->id => $rootTermName]);
+            $callback();
         } catch (Exception $ex) {
             $exceptionTrown = true;
         }
         $this->tester->assertTrue($exceptionTrown);
-
-        // 8. Adding two hierarchies at once
-        TaxonomyTerms::deleteAll();
-
-        $rootTerm = $categoryTerm->addTerm(null, $rootTermName);
-        $rootTerm2 = $categoryTerm->addTerm(null, $rootTermName2);
-        $result = $categoryTerm->addTerm(null, [
-            $rootTerm->id => [
-                $childTermName1,
-                $childTermName2
-            ],
-            $rootTerm2->id => [
-                $childTermName3,
-                $childTermName4
-            ]
-        ]);
-
-        $this->tester->assertEquals(4, count($result));
-
-        $categoryTerm = $this->getTaxonomy()->getTerm($taxonomy->name, true);
-        $terms = $categoryTerm->getTerms(null);
-
-        $this->tester->assertEquals(6, count($terms));
-        $this->tester->assertContains($childTermName1, $terms);
-        $this->tester->assertContains($childTermName2, $terms);
-        $this->tester->assertContains($childTermName3, $terms);
-        $this->tester->assertContains($childTermName4, $terms);
-
-        // 9. Adding array with values only
-        TaxonomyTerms::deleteAll();
-
-        $rootTerm = $categoryTerm->addTerm(null, $rootTermName);
-
-        $exceptionTrown = false;
-        try {
-            $categoryTerm->addTerm(null, [$rootTerm->id]);
-        } catch (Exception $ex) {
-            $exceptionTrown = true;
-        }
-        $this->tester->assertTrue($exceptionTrown);
-
-        // 9. Adding one ordinary array and one additional value
-        TaxonomyTerms::deleteAll();
-
-        $rootTerm = $categoryTerm->addTerm(null, $rootTermName);
-
-        $exceptionTrown = false;
-        try {
-            $categoryTerm->addTerm(null, [$rootTerm->id => $childTermName1, 2]);
-        } catch (Exception $ex) {
-            $exceptionTrown = true;
-        }
-        $this->tester->assertTrue($exceptionTrown);
-
-        // 10. setTerms() test
-        TaxonomyTerms::deleteAll();
-        
-        $rootTerm = $categoryTerm->addTerm(1, $rootTermName);
-        $categoryTerm->addTerm(1, [$rootTerm->id => [$childTermName1, $childTermName2]]);
-        $terms = $categoryTerm->getTerms(1);
-        $this->tester->assertEquals(3, count($terms));
-
-        $categoryTerm->setTerms(1, [$rootTermName, $rootTermName2 => [$childTermName1]]);
-        $terms = $categoryTerm->getTerms(1);
-        $this->tester->assertEquals(3, count($terms));
-        $this->tester->assertContains($rootTermName, $terms);
-        $this->tester->assertContains($rootTermName2, $terms);
-        $this->tester->assertContains($childTermName1, $terms);
-        
-        $categoryTerm->setTerms(1, [$rootTermName, 'root2Changed' => [$childTermName1]]);
-        $terms = $categoryTerm->getTerms(1);
-        $this->tester->assertEquals(3, count($terms));
-        $this->tester->assertContains($rootTermName, $terms);
-        $this->tester->assertContains('root2Changed', $terms);
-        $this->tester->assertContains($childTermName1, $terms);
-        
-        $categoryTerm->setTerms(1, [$rootTermName]);
-        $terms = $categoryTerm->getTerms(1);
-        $this->tester->assertEquals(1, count($terms));
-        $this->tester->assertContains($rootTermName, $terms);
-
-        $categoryTerm->setTerms(1, ['rootChanged']);
-        $terms = $categoryTerm->getTerms(1);
-        $this->tester->assertEquals(1, count($terms));
-        $this->tester->assertContains('rootChanged', $terms);
-
-        // Remove everything
-        $categoryTerm->setTerms(1);
-        $terms = $categoryTerm->getTerms(1);
-        $this->tester->assertEquals(0, count($terms));
     }
 }
