@@ -115,14 +115,14 @@ abstract class BaseTerm extends Object implements ITaxonomyTermInterface
     public function getTaxonomyTerm($name, $create = true)
     {
         $term = TaxonomyTerms::findOne(['term'=>$name, 'taxonomy_id' => $this->id]);
-        if($create and !isset($term))
-        {
+        if($create and !isset($term)) {
             $term = new TaxonomyTerms();
             $term->taxonomy_id = $this->id;
             $term->term = $name;
             $term->total_count = 0;
             $term->save();
         }
+        
         return $term;
     }
 
