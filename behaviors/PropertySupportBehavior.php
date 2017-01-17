@@ -50,6 +50,6 @@ class PropertySupportBehavior extends Behavior
 
     public function getProperties($properties = [])
     {
-        return $this->propertyTerm->getTerms($this->id, $properties);
+        return $this->propertyTerm->getTerms($this->owner->id, $properties);
     }
 }
