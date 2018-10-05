@@ -13,12 +13,12 @@ use nkostadinov\taxonomy\models\TaxonomyDef;
 use nkostadinov\taxonomy\models\TaxonomyTerms;
 use Yii;
 use yii\base\Exception;
-use yii\base\Object;
+use yii\base\Object as BaseObject;
 use yii\db\Connection;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
 
-abstract class BaseTerm extends Object implements ITaxonomyTermInterface
+abstract class BaseTerm extends BaseObject implements ITaxonomyTermInterface
 {
     public $migrationPath = '@app/migrations';
 
