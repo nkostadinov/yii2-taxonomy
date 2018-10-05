@@ -90,7 +90,7 @@ class PropertyTerm extends BaseTerm
         }
     }
 
-    public function getTerms($object_id, $name = [])
+    public function getTerms($object_id = null, $name = [])
     {
         $query = (new Query())
             ->select(TaxonomyTerms::tableName() . '.term, ' . $this->getTable() . '.value')
